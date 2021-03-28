@@ -10,4 +10,5 @@
     <color name="danger">#D9534F</color>
     <color name="success">#5CB85C</color>
     <color name="transparent">#00FFFFFF</color>
+    <color name="toolbar">#212121</color>
 </resources>

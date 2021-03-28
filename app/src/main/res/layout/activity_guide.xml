@@ -1,28 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@style/Launcher"
-    tools:context=".MainActivity">
+    tools:context=".GuideActivity">
 
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <com.otaliastudios.cameraview.CameraView
+        android:id="@+id/camera"
+        android:keepScreenOn="true"
+        app:cameraAudio="off"
+        app:cameraFacing="back"
+        app:cameraPreviewFrameRate="30"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/toolbar"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/Theme.GuideMyEyes" />
-
-    <FrameLayout
-        android:id="@+id/fragment_frame_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </FrameLayout>
+        android:layout_height="match_parent" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"
@@ -34,25 +25,24 @@
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/transparent"
             android:layout_marginEnd="16dp"
+            android:background="@color/transparent"
             app:elevation="0dp"
-            app:itemTextColor="@color/bottom_nav_color"
             app:itemIconTint="@color/bottom_nav_color"
-            app:menu="@menu/bottom_nav_menu" />
+            app:itemTextColor="@color/bottom_nav_color" />
 
     </com.google.android.material.bottomappbar.BottomAppBar>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/guideButton"
+        android:id="@+id/stopButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/start"
-        android:src="@drawable/ic_camera"
         android:backgroundTint="@color/danger"
+        android:contentDescription="@string/start"
+        android:src="@drawable/ic_stop"
         app:borderWidth="0dp"
         app:fabCustomSize="70dp"
-        app:maxImageSize="30dp"
-        app:layout_anchor="@id/bottomAppBar"/>
+        app:layout_anchor="@id/bottomAppBar"
+        app:maxImageSize="30dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
