@@ -1,8 +1,11 @@
 package com.example.guidemyeyes;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -10,6 +13,9 @@ import android.view.WindowManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.otaliastudios.cameraview.CameraView;
+import com.otaliastudios.cameraview.frame.Frame;
+import com.otaliastudios.cameraview.frame.FrameProcessor;
+import com.otaliastudios.cameraview.size.Size;
 
 public class GuideActivity extends AppCompatActivity {
 
@@ -34,7 +40,22 @@ public class GuideActivity extends AppCompatActivity {
         });
 
         //Camera init
-        CameraView camera = findViewById(R.id.camera);
-        camera.setLifecycleOwner(this);
+        CameraView cameraView = findViewById(R.id.camera);
+        cameraView.setLifecycleOwner(this);
+        cameraView.setFocusable(false);
+        cameraView.addFrameProcessor(frame -> {
+            long time = frame.getTime();
+            Size size = frame.getSize();
+            int format = frame.getFormat();
+            int userRotation = frame.getRotationToUser();
+            int viewRotation = frame.getRotationToView();
+            if (frame.getDataClass() == byte[].class) {
+                byte[] data = frame.getData();
+                // Process byte array...
+            } else if (frame.getDataClass() == Image.class) {
+                Image data = frame.getData();
+                // Process android.media.Image...
+            }
+        });
     }
 }

@@ -25,11 +25,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TransitionInflater inflater = TransitionInflater.from(requireContext());
-        setEnterTransition(inflater.inflateTransition(R.transition.slide_right));
-        setExitTransition(inflater.inflateTransition(R.transition.slide_right));
-        setAllowEnterTransitionOverlap(true);
-        setAllowReturnTransitionOverlap(true);
     }
 
 }

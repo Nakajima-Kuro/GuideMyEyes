@@ -23,10 +23,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TransitionInflater inflater = TransitionInflater.from(requireContext());
-        setEnterTransition(inflater.inflateTransition(R.transition.slide_left));
-        setAllowEnterTransitionOverlap(true);
-        setAllowReturnTransitionOverlap(true);
     }
 
     @Override

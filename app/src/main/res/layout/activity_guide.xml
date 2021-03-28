@@ -6,14 +6,28 @@
     android:layout_height="match_parent"
     tools:context=".GuideActivity">
 
-    <com.otaliastudios.cameraview.CameraView
-        android:id="@+id/camera"
-        android:keepScreenOn="true"
-        app:cameraAudio="off"
-        app:cameraFacing="back"
-        app:cameraPreviewFrameRate="30"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/black"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/Theme.GuideMyEyes" />
+
+        <com.otaliastudios.cameraview.CameraView
+            android:id="@+id/camera"
+            android:keepScreenOn="true"
+            app:cameraAudio="off"
+            app:cameraFacing="back"
+            app:cameraPreviewFrameRate="30"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"

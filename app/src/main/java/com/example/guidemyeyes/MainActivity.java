@@ -1,21 +1,11 @@
 package com.example.guidemyeyes;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.navigation.NavController;
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.NavHostFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -36,25 +26,36 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_frame_layout, homeFragment);
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(
                 item -> {
-                    Fragment selectedFragment = null;
                     switch (item.getItemId()) {
                         case R.id.menuHome: {
-                            selectedFragment = homeFragment;
+                            if (!homeFragment.isVisible()) {
+                                getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                                        .addToBackStack(null)
+                                        .replace(R.id.fragment_frame_layout, homeFragment)
+                                        .commit();
+                            }
                             break;
                         }
                         case R.id.menuSetting: {
-                            selectedFragment = settingsFragment;
+                            if (!settingsFragment.isVisible()) {
+                                getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left)
+                                        .addToBackStack(null)
+                                        .replace(R.id.fragment_frame_layout, settingsFragment)
+                                        .commit();
+                            }
                             break;
                         }
-                    }
-                    if (selectedFragment != null && !selectedFragment.isVisible()) {
-                        getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_frame_layout, selectedFragment).commit();
                     }
                     return true;
                 });

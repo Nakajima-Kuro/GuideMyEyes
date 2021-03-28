@@ -10,17 +10,17 @@
         android:name="com.example.guidemyeyes.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home" >
-    </fragment>
-    <fragment
-        android:id="@+id/guideFragment"
-        android:name="com.example.guidemyeyes.GuideFragment"
-        android:label="Guide"
-        tools:layout="@layout/fragment_guide" >
+        <action
+            android:id="@+id/action_homeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.guidemyeyes.SettingsFragment"
         android:label="Settings"
         tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_settingsFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
     </fragment>
 </navigation>
