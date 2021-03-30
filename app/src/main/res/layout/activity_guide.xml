@@ -21,10 +21,15 @@
 
         <com.otaliastudios.cameraview.CameraView
             android:id="@+id/camera"
-            android:keepScreenOn="true"
+            android:keepScreenOn="false"
             app:cameraAudio="off"
             app:cameraFacing="back"
-            app:cameraPreviewFrameRate="30"
+            app:cameraFlash="off"
+            app:cameraEngine="camera2"
+            app:cameraFrameProcessingMaxWidth="640"
+            app:cameraFrameProcessingMaxHeight="640"
+            app:cameraFrameProcessingPoolSize="3"
+            app:cameraFrameProcessingExecutors="2"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>

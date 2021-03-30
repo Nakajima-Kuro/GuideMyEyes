@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -31,32 +32,30 @@ public class GuideActivity extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_guide);
 
-        //Stop button click handler
-        FloatingActionButton button = (FloatingActionButton) findViewById(R.id.stopButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(GuideActivity.this, MainActivity.class);
-                GuideActivity.this.startActivity(intent);
-            }
-        });
-
         //Camera init
         CameraView cameraView = findViewById(R.id.camera);
         cameraView.setLifecycleOwner(this);
         cameraView.setFocusable(false);
+
+        //Add camera processor
         cameraView.addFrameProcessor(frame -> {
             long time = frame.getTime();
             Size size = frame.getSize();
             int format = frame.getFormat();
-            int userRotation = frame.getRotationToUser();
-            int viewRotation = frame.getRotationToView();
-            if (frame.getDataClass() == byte[].class) {
-                byte[] data = frame.getData();
-                // Process byte array...
-            } else if (frame.getDataClass() == Image.class) {
+            if (frame.getDataClass() == Image.class) {
+                //Process Camera 2
                 Image data = frame.getData();
                 // Process android.media.Image...
             }
+        });
+
+        //Stop button click handler
+        FloatingActionButton button = findViewById(R.id.stopButton);
+        button.setOnClickListener(view -> {
+            cameraView.clearFrameProcessors();
+            cameraView.destroy();
+            Intent intent = new Intent(GuideActivity.this, MainActivity.class);
+            GuideActivity.this.startActivity(intent);
         });
     }
 }
