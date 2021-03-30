@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreference
         android:key="switch"
-        android:title="Switch Preference"
-        android:summary="Click to switch on or off"
+        android:title="@string/setting_close_distant"
+        android:summary="@string/setting_hint_close_distant"
         android:defaultValue="false"/>
 </PreferenceScreen>
