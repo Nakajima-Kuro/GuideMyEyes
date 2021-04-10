@@ -15,6 +15,7 @@
 package com.example.guidemyeyes.common.rendering;
 
 import android.content.Context;
+import android.opengl.EGLConfig;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -23,11 +24,14 @@ import androidx.annotation.NonNull;
 
 import com.google.ar.core.Coordinates2d;
 import com.google.ar.core.Frame;
+import com.google.ar.core.Session;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+
+import javax.microedition.khronos.opengles.GL10;
 
 /**
  * This class renders the AR background from camera feed. It creates and hosts the texture given to

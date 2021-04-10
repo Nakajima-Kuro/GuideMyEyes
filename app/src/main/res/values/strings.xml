@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Guide My Eyes</string>
     <string name="start">Start</string>
+    <string name="end">End</string>
     <string name="setting_close_distant">Close distant mode</string>
     <string name="setting_hint_close_distant">Use for identifying object at close distant.</string>
     <!-- TODO: Remove or change this placeholder text -->
