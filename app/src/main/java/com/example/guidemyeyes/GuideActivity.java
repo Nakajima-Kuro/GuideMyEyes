@@ -1,6 +1,7 @@
 
 package com.example.guidemyeyes;
 
+import android.content.Intent;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,7 +22,7 @@ import com.example.guidemyeyes.common.helpers.SnackbarHelper;
 import com.example.guidemyeyes.common.helpers.TapHelper;
 import com.example.guidemyeyes.common.helpers.TrackingStateHelper;
 import com.example.guidemyeyes.common.rendering.BackgroundRenderer;
-import com.example.guidemyeyes.common.rendering.ObjectRenderer;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Camera;
@@ -64,7 +66,6 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
     private final DepthTextureHandler depthTexture = new DepthTextureHandler();
     private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
-    private final ObjectRenderer virtualObject = new ObjectRenderer();
 
     // Temporary matrix allocated here to reduce number of allocations for each frame.
     private final float[] anchorMatrix = new float[16];
@@ -107,18 +108,26 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
         installRequested = false;
 
-//        Need to replace with function base on menu
-//        final Button toggleDepthButton = (Button) findViewById(R.id.toggle_depth_button);
-//        toggleDepthButton.setOnClickListener(
-//                view -> {
-//                    if (isDepthSupported) {
-//                        showDepthMap = !showDepthMap;
-//                        toggleDepthButton.setText(showDepthMap ? R.string.hide_depth : R.string.show_depth);
-//                    } else {
-//                        showDepthMap = false;
-//                        toggleDepthButton.setText(R.string.depth_not_available);
-//                    }
-//                });
+        final ImageButton toggleDepthButton = (ImageButton) findViewById(R.id.toggle_depth_button);
+        toggleDepthButton.setOnClickListener(
+                view -> {
+                    if (isDepthSupported) {
+                        showDepthMap = !showDepthMap;
+                        toggleDepthButton.setBackgroundResource(showDepthMap ? R.drawable.ic_visibility_off : R.drawable.ic_visibility);
+                    } else {
+                        showDepthMap = false;
+                        toggleDepthButton.setEnabled(false);
+                    }
+                });
+
+        //Stop button click handler
+        FloatingActionButton button = findViewById(R.id.stopButton);
+        button.setOnClickListener(view -> {
+            session.close();
+            //Redirect back to Main Activity
+            Intent intent = new Intent(GuideActivity.this, MainActivity.class);
+            GuideActivity.this.startActivity(intent);
+        });
     }
 
     @Override
@@ -238,9 +247,6 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
             // Create the texture and pass it to ARCore session to be filled during update().
             backgroundRenderer.createOnGlThread(/*context=*/ this);
             backgroundRenderer.createDepthShaders(/*context=*/ this, depthTexture.getDepthTexture());
-
-            virtualObject.createOnGlThread(/*context=*/ this, "models/andy.obj", "models/andy.png");
-            virtualObject.setMaterialProperties(0.0f, 2.0f, 0.5f, 6.0f);
         } catch (IOException e) {
             Log.e(TAG, "Failed to read an asset file", e);
         }
@@ -333,9 +339,6 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 // during calls to session.update() as ARCore refines its estimate of the world.
                 anchor.getPose().toMatrix(anchorMatrix, 0);
 
-                // Update and draw the model and its shadow.
-                virtualObject.updateModelMatrix(anchorMatrix, scaleFactor);
-                virtualObject.draw(viewmtx, projmtx, colorCorrectionRgba, OBJECT_COLOR);
             }
 
         } catch (Throwable t) {
