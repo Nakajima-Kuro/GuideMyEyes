@@ -1,7 +1,9 @@
 
 package com.guidemyeyes.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -13,6 +15,8 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.guidemyeyes.DepthTextureHandler;
 import com.guidemyeyes.R;
@@ -97,6 +101,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
         //Stop button click handler
         FloatingActionButton button = findViewById(R.id.stopButton);
         button.setOnClickListener(view -> {
+            surfaceView.onPause();
             session.close();
             //Redirect back to Main Activity
             Intent intent = new Intent(GuideActivity.this, MainActivity.class);
@@ -125,6 +130,12 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 if (!CameraPermissionHelper.hasCameraPermission(this)) {
                     CameraPermissionHelper.requestCameraPermission(this);
                     return;
+                }
+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) !=
+                        PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
+                            50);
                 }
 
                 // Creates the ARCore session.

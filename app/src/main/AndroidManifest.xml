@@ -6,6 +6,7 @@
 
     <!-- Limits app visibility in the Google Play Store to ARCore supported devices
          (https://developers.google.com/ar/discover/supported-devices). -->
+    <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.ar" />
     <uses-feature android:name="com.google.ar.core.depth" />
 
@@ -15,8 +16,11 @@
         android:label= "@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GuideMyEyes">
-        <activity android:name=".activities.GuideActivity"></activity>
+        android:theme="@style/Theme.GuideMyEyes"
+        android:hardwareAccelerated="true">
+        <activity
+            android:name=".activities.GuideActivity"
+            android:hardwareAccelerated="true"></activity>
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
