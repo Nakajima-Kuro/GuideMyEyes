@@ -1,4 +1,4 @@
-package com.example.guidemyeyes;
+package com.guidemyeyes.fragments;
 
 import android.os.Bundle;
 
@@ -10,6 +10,8 @@ import android.preference.PreferenceFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.guidemyeyes.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 

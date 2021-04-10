@@ -1,5 +1,5 @@
 
-package com.example.guidemyeyes;
+package com.guidemyeyes.activities;
 
 import android.content.Intent;
 import android.graphics.drawable.Icon;
@@ -14,16 +14,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.guidemyeyes.common.helpers.CameraPermissionHelper;
-import com.example.guidemyeyes.common.helpers.DisplayRotationHelper;
-import com.example.guidemyeyes.common.helpers.FullScreenHelper;
-import com.example.guidemyeyes.common.helpers.SnackbarHelper;
-import com.example.guidemyeyes.common.helpers.TapHelper;
-import com.example.guidemyeyes.common.helpers.TrackingStateHelper;
-import com.example.guidemyeyes.common.rendering.BackgroundRenderer;
+import com.guidemyeyes.DepthTextureHandler;
+import com.guidemyeyes.R;
+import com.guidemyeyes.common.helpers.CameraPermissionHelper;
+import com.guidemyeyes.common.helpers.DisplayRotationHelper;
+import com.guidemyeyes.common.helpers.FullScreenHelper;
+import com.guidemyeyes.common.rendering.BackgroundRenderer;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.ArCoreApk;
-import com.google.ar.core.Camera;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Pose;

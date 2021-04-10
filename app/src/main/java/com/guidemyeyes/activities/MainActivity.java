@@ -1,4 +1,4 @@
-package com.example.guidemyeyes;
+package com.guidemyeyes.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -9,6 +9,9 @@ import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.guidemyeyes.R;
+import com.guidemyeyes.fragments.HomeFragment;
+import com.guidemyeyes.fragments.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity {
 

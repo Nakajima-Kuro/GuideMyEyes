@@ -1,13 +1,14 @@
-package com.example.guidemyeyes;
+package com.guidemyeyes.fragments;
 
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.transition.TransitionInflater;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.guidemyeyes.R;
 
 public class HomeFragment extends Fragment {
 
