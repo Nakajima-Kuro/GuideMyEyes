@@ -19,19 +19,12 @@
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/Theme.GuideMyEyes" />
 
-        <com.otaliastudios.cameraview.CameraView
-            android:id="@+id/camera"
-            android:keepScreenOn="false"
-            app:cameraAudio="off"
-            app:cameraFacing="back"
-            app:cameraFlash="off"
-            app:cameraEngine="camera2"
-            app:cameraFrameProcessingMaxWidth="640"
-            app:cameraFrameProcessingMaxHeight="640"
-            app:cameraFrameProcessingPoolSize="3"
-            app:cameraFrameProcessingExecutors="2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        <android.opengl.GLSurfaceView
+            android:id="@+id/surfaceview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="top"/>
+
     </LinearLayout>
 
     <com.google.android.material.bottomappbar.BottomAppBar

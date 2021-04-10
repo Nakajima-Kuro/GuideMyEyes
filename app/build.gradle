@@ -45,6 +45,7 @@ dependencies {
 
     implementation "androidx.navigation:navigation-fragment:$nav_version"
     implementation "androidx.navigation:navigation-ui:$nav_version"
+    implementation 'com.google.ar:core:1.23.0'
 
     //Camera view api
     api 'com.otaliastudios:cameraview:2.7.0'
