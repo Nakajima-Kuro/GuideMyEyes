@@ -10,4 +10,6 @@
     <string name="bottom_menu_setting">Setting</string>
     <string name="bottom_menu_depth">Depth View</string>
     <string name="bottom_menu_normal">Normal View</string>
+    <string name="toogle_depth_image">Toogle depth image</string>
+
 </resources>
