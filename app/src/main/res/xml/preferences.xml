@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreference
-        android:key="switch"
-        android:title="@string/setting_close_distant"
-        android:summary="@string/setting_hint_close_distant"
+        android:key="dev_mode"
+        android:title="@string/dev_mode_title"
+        android:summary="@string/dev_mode_hint"
         android:defaultValue="false"/>
 </PreferenceScreen>

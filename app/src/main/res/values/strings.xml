@@ -2,8 +2,8 @@
     <string name="app_name">Guide My Eyes</string>
     <string name="start">Start</string>
     <string name="end">End</string>
-    <string name="setting_close_distant">Close distant mode</string>
-    <string name="setting_hint_close_distant">Use for identifying object at close distant.</string>
+    <string name="dev_mode_title">Developer Mode</string>
+    <string name="dev_mode_hint">Visualize the sensors on the phone screen. We turn this off by default to save your battery</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="bottom_menu_home">Home</string>

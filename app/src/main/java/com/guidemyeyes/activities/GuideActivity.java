@@ -3,23 +3,29 @@ package com.guidemyeyes.activities;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 
 import com.guidemyeyes.DepthTextureHandler;
 import com.guidemyeyes.R;
+import com.guidemyeyes.RadarHandler;
 import com.guidemyeyes.common.helpers.CameraPermissionHelper;
 import com.guidemyeyes.common.helpers.DisplayRotationHelper;
 import com.guidemyeyes.common.helpers.FullScreenHelper;
@@ -59,8 +65,11 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
     private final DepthTextureHandler depthTexture = new DepthTextureHandler();
     private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
+    private RadarHandler radarHandler;
 
-    private boolean showDepthMap = false;
+    private boolean showDepthMap = true;
+
+    private boolean devMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +93,16 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         surfaceView.setWillNotDraw(false);
 
+        //Set up RadarHandler
+        radarHandler = new RadarHandler(this);
+
         installRequested = false;
 
         final ImageButton toggleDepthButton = findViewById(R.id.toggle_depth_button);
+
+        //Check for dev mode
+        checkDevMode();
+
         toggleDepthButton.setOnClickListener(
                 view -> {
                     if (isDepthSupported) {
@@ -103,10 +119,23 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
         button.setOnClickListener(view -> {
             surfaceView.onPause();
             session.close();
+            radarHandler.destroy();
             //Redirect back to Main Activity
             Intent intent = new Intent(GuideActivity.this, MainActivity.class);
             GuideActivity.this.startActivity(intent);
         });
+    }
+
+    private void checkDevMode(){
+        devMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dev_mode", false);
+        //Get View for both Development View and Normal View
+//        RelativeLayout devView = findViewById(R.id.content_guide_dev);
+//        ConstraintLayout normView = findViewById(R.id.content_guide_main);
+//
+//        if(devMode){
+//            //Hide Normal View and show Dev View
+//            normView.setMaxHeight(0);
+//        }
     }
 
     @Override
@@ -266,10 +295,16 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 depthTexture.update(frame);
             }
 
-            // If frame is ready, render camera preview image to the GL surface.
-            backgroundRenderer.draw(frame);
-            if (showDepthMap) {
-                backgroundRenderer.drawDepth(frame);
+            if(devMode){
+                // If frame is ready, render camera preview image to the GL surface.
+                backgroundRenderer.draw(frame);
+                if (showDepthMap) {
+                    backgroundRenderer.drawDepth(frame);
+                }
+            }
+
+            if(isDepthSupported){
+                radarHandler.renderPosition(frame);
             }
 
         } catch (Throwable t) {
