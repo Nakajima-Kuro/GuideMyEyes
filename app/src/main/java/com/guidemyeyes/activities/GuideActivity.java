@@ -43,6 +43,7 @@ import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
+import com.guidemyeyes.common.rendering.RadarRenderer;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -67,6 +68,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
     private final DepthTextureHandler depthTexture = new DepthTextureHandler();
     private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
     private RadarHandler radarHandler;
+    private RadarRenderer radarRenderer;
 
     private boolean showDepthMap = true;
 
@@ -96,6 +98,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
         //Set up RadarHandler
         radarHandler = new RadarHandler(this);
+        radarRenderer = findViewById(R.id.radarRendererLayout);
 
         installRequested = false;
 
@@ -308,27 +311,14 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
             //Render sound base on relative position of the closest point with the frame
             if(isDepthSupported){
                 Coordinate coor = radarHandler.renderPosition(frame);
+                radarRenderer.setCoordinate(coor);
+                radarRenderer.invalidate();
             }
 
         } catch (Throwable t) {
             // Avoid crashing the application due to unhandled exceptions.
             Log.e(TAG, "Exception on the OpenGL thread", t);
         }
-    }
-
-    // Calculate the normal distance to plane from cameraPose, the given planePose should have y axis
-    // parallel to plane's normal, for example plane's center pose or hit test pose.
-    private static float calculateDistanceToPlane(Pose planePose, Pose cameraPose) {
-        float[] normal = new float[3];
-        float cameraX = cameraPose.tx();
-        float cameraY = cameraPose.ty();
-        float cameraZ = cameraPose.tz();
-        // Get transformed Y axis of plane's coordinate system.
-        planePose.getTransformedAxis(1, 1.0f, normal, 0);
-        // Compute dot product of plane's normal with vector from camera to plane center.
-        return (cameraX - planePose.tx()) * normal[0]
-                + (cameraY - planePose.ty()) * normal[1]
-                + (cameraZ - planePose.tz()) * normal[2];
     }
 
 }
