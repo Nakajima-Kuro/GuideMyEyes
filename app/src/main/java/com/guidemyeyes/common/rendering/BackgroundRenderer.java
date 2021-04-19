@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import com.google.ar.core.Coordinates2d;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
+import com.guidemyeyes.Coordinate;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -255,11 +256,6 @@ public class BackgroundRenderer {
         GLES20.glUseProgram(depthProgram);
         GLES20.glUniform1i(depthTextureParam, 0);
 
-//        //Render Pulse
-//        depthRangeToRenderMm += 50.0f;
-//        if (depthRangeToRenderMm > MAX_DEPTH_RANGE_TO_RENDER_MM) {
-//            depthRangeToRenderMm = 0.0f;
-//        }
         GLES20.glUniform1f(depthRangeToRenderMmParam, MAX_DEPTH_RANGE_TO_RENDER_MM);
 
         // Set the vertex positions and texture coordinates.
@@ -281,7 +277,6 @@ public class BackgroundRenderer {
 
         ShaderUtil.checkGLError(TAG, "BackgroundRendererDraw");
     }
-
     /**
      * (-1, 1) ------- (1, 1)
      * |    \           |

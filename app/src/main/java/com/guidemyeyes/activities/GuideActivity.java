@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import com.guidemyeyes.Coordinate;
 import com.guidemyeyes.DepthTextureHandler;
 import com.guidemyeyes.R;
 import com.guidemyeyes.RadarHandler;
@@ -303,8 +304,10 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 }
             }
 
+
+            //Render sound base on relative position of the closest point with the frame
             if(isDepthSupported){
-                radarHandler.renderPosition(frame);
+                Coordinate coor = radarHandler.renderPosition(frame);
             }
 
         } catch (Throwable t) {

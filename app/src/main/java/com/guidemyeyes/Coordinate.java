@@ -1,4 +1,4 @@
-package com.guidemyeyes.fragments;
+package com.guidemyeyes;
 
 public class Coordinate {
     private int x;

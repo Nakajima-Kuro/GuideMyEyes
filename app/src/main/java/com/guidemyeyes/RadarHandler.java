@@ -7,7 +7,6 @@ import android.media.SoundPool;
 
 import com.google.ar.core.Frame;
 import com.google.ar.core.exceptions.NotYetAvailableException;
-import com.guidemyeyes.fragments.Coordinate;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -28,6 +27,13 @@ public class RadarHandler {
 
     private boolean isPlaying = false;
 
+    /**
+     * Constructor
+     *
+     * @param context The context of recent activity
+     *
+     * @return None
+     */
     public RadarHandler(Context context) {
         this.context = context;
 
@@ -48,7 +54,14 @@ public class RadarHandler {
         far = soundPool.load(context, R.raw.far, 1);
     }
 
-    public void renderPosition(Frame frame) {
+    /**
+     * Looking for closest point on depth map and play sound base on point coordinate
+     *
+     * @param frame The frame get from an AR Instance
+     *
+     * @return Coordinate of the closest point on depth map
+     */
+    public Coordinate renderPosition(Frame frame) {
         if (isPlaying == false) {
             try {
                 //get Image and its size from frame
@@ -80,6 +93,7 @@ public class RadarHandler {
                 }
 
                 playSound(width, height, coor);
+                return coor;
             } catch (NotYetAvailableException e) {
                 //AR is not yet available. Playing loading sound
 //                Timer timer = new Timer();
@@ -93,9 +107,18 @@ public class RadarHandler {
 //                e.printStackTrace();
             }
         }
+        return null;
     }
 
-
+    /**
+     * Play sound to make person have immersion of location of the point on depth map
+     *
+     * @param width width of the depth image
+     * @param height height of the depth image
+     * @param coor coordinate of the point want to render sound
+     *
+     * @return None
+     */
     public void playSound(int width, int height, Coordinate coor) {
         if (isPlaying == false) {
             isPlaying = true;
@@ -136,6 +159,10 @@ public class RadarHandler {
         }
     }
 
+    /**
+     * Call this when RadarHandler is not used anymore
+     * @return None
+     */
     public void destroy() {
         soundPool.release();
         soundPool = null;
