@@ -310,9 +310,12 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
             //Render sound base on relative position of the closest point with the frame
             if(isDepthSupported){
-                Coordinate coor = radarHandler.renderPosition(frame);
-                radarRenderer.setCoordinate(coor);
-                radarRenderer.invalidate();
+                int orientation = getResources().getConfiguration().orientation;
+                Coordinate coor = radarHandler.renderPosition(frame, orientation);
+                if(coor != null){
+                    radarRenderer.setCoordinate(coor);
+                    radarRenderer.invalidate();
+                }
             }
 
         } catch (Throwable t) {

@@ -1,20 +1,16 @@
 package com.guidemyeyes.common.rendering;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 
 import com.guidemyeyes.Coordinate;
-
-import static android.content.ContentValues.TAG;
 
 public class RadarRenderer extends View {
 
@@ -29,7 +25,7 @@ public class RadarRenderer extends View {
         super(context, attrs);
         setupPaint();
         this.setBackgroundColor(Color.TRANSPARENT);
-        this.coor = new Coordinate((getWidth()/2),(getHeight()/2), (short) 0);
+        this.coor = new Coordinate((getWidth() / 2), (getHeight() / 2), getWidth(), getHeight(), (short) 0);
     }
 
     // Setup paint with color and stroke styles
@@ -46,14 +42,55 @@ public class RadarRenderer extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         drawPaint.setColor(Color.BLUE);
-        canvas.drawCircle(coor.getX(), coor.getY(), 10, drawPaint);
+        if (coor.getHeight() != 0 && coor.getHeight() != 0) {
+            /*
+            * AR Core Coordinate System is a bit funny
+            * y
+            * <------------------------------------------
+                                                        |
+                                                        |
+                                                        |
+                                                        |
+                                                        |
+                                                        | x
+                                                        v
+            *
+            *
+            * While Canvas Coordinate System is like this
+            *                                         x
+            * ----------------------------------------->
+            * |
+            * |
+            * |
+            * |
+            * |
+            * | y
+            * v
+            *
+            * So the equation will be hard to understand
+            * */
+            float drawX, drawY;
+            //Check if phone in landscape or potrait
+            int orientation = getResources().getConfiguration().orientation;
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                // In landscape
+                drawX = coor.getX() * getWidth() / coor.getWidth();
+                drawY = coor.getY() * getHeight() / coor.getHeight();
+            } else {
+                // In portrait
+                drawX = getWidth() - coor.getY() * getWidth() / coor.getHeight();
+                drawY = coor.getX() * getHeight() / coor.getWidth();
+            }
+
+            canvas.drawCircle(drawX, drawY, 10, drawPaint);
+            drawPaint.setColor(Color.RED);
+            canvas.drawCircle(getWidth() / 2, getHeight() / 2, 10, drawPaint);
+        }
     }
 
-    public void setCoordinate(Coordinate coor){
-        if(coor != null){
+    public void setCoordinate(Coordinate coor) {
+        if (coor != null) {
             this.coor = coor;
-            Log.i(TAG, "onDraw: " + coor.getX() + ", " + coor.getY());
-            Log.i(TAG, "onDraw: " + (getWidth()/2) + ", " + (getHeight()/2));
         }
     }
 }
