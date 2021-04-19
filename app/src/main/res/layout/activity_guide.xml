@@ -6,57 +6,54 @@
     android:layout_height="match_parent"
     tools:context=".activities.GuideActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/content_guide_dev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible">
 
-        <RelativeLayout
-            android:id="@+id/content_guide_dev"
+        <android.opengl.GLSurfaceView
+            android:id="@+id/surfaceview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="top" />
+
+        <com.guidemyeyes.common.rendering.RadarRenderer
+            android:id="@+id/radarRendererLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageButton
+            android:id="@+id/toggle_depth_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:contentDescription="@string/toogle_depth_image"
+            app:srcCompat="@drawable/ic_visibility" />
 
-            <android.opengl.GLSurfaceView
-                android:id="@+id/surfaceview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="top" />
+    </RelativeLayout>
 
-            <com.guidemyeyes.common.rendering.RadarRenderer
-                android:id="@+id/radarRendererLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/stopButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="15dp"
+        android:backgroundTint="@color/danger"
+        android:contentDescription="@string/end"
+        android:src="@drawable/ic_stop"
+        app:borderWidth="0dp"
+        app:fabCustomSize="70dp"
+        app:maxImageSize="30dp" />
 
-            <ImageButton
-                android:id="@+id/toggle_depth_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="20dp"
-                android:contentDescription="@string/toogle_depth_image"
-                app:srcCompat="@drawable/ic_visibility" />
-
-        </RelativeLayout>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/stopButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/danger"
-            android:contentDescription="@string/end"
-            android:src="@drawable/ic_stop"
-            app:borderWidth="0dp"
-            app:fabCustomSize="70dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/content_guide_dev"
-            app:layout_constraintStart_toStartOf="parent"
-            app:maxImageSize="30dp" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageView
+        android:id="@+id/guide_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@string/app_logo"
+        app:srcCompat="@mipmap/ic_launcher_foreground" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

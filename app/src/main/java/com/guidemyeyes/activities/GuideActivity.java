@@ -10,6 +10,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
@@ -128,14 +129,11 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
     private void checkDevMode(){
         devMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dev_mode", false);
-        //Get View for both Development View and Normal View
-//        RelativeLayout devView = findViewById(R.id.content_guide_dev);
-//        ConstraintLayout normView = findViewById(R.id.content_guide_main);
-//
-//        if(devMode){
-//            //Hide Normal View and show Dev View
-//            normView.setMaxHeight(0);
-//        }
+//        Get View for both Development View and Normal View
+        if(devMode){
+            //Hide Logo
+            findViewById(R.id.guide_logo).setVisibility(View.GONE);
+        }
     }
 
     @Override
