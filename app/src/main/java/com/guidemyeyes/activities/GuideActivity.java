@@ -2,27 +2,35 @@
 package com.guidemyeyes.activities;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.ar.core.ArCoreApk;
+import com.google.ar.core.Config;
+import com.google.ar.core.Frame;
+import com.google.ar.core.Session;
+import com.google.ar.core.exceptions.CameraNotAvailableException;
+import com.google.ar.core.exceptions.UnavailableApkTooOldException;
+import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
+import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
+import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
+import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.guidemyeyes.Coordinate;
 import com.guidemyeyes.DepthTextureHandler;
 import com.guidemyeyes.R;
@@ -31,18 +39,6 @@ import com.guidemyeyes.common.helpers.CameraPermissionHelper;
 import com.guidemyeyes.common.helpers.DisplayRotationHelper;
 import com.guidemyeyes.common.helpers.FullScreenHelper;
 import com.guidemyeyes.common.rendering.BackgroundRenderer;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.ar.core.ArCoreApk;
-import com.google.ar.core.Config;
-import com.google.ar.core.Frame;
-import com.google.ar.core.Pose;
-import com.google.ar.core.Session;
-import com.google.ar.core.exceptions.CameraNotAvailableException;
-import com.google.ar.core.exceptions.UnavailableApkTooOldException;
-import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
-import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
-import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
-import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.guidemyeyes.common.rendering.RadarRenderer;
 
 import org.jetbrains.annotations.NotNull;
@@ -310,10 +306,10 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
             //Render sound base on relative position of the closest point with the frame
             if(isDepthSupported){
-                int orientation = getResources().getConfiguration().orientation;
+                int orientation = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
                 Coordinate coor = radarHandler.renderPosition(frame, orientation);
-                if(coor != null){
-                    radarRenderer.setCoordinate(coor);
+                if(coor != null && devMode){
+                    radarRenderer.setCoordinate(coor, orientation);
                     radarRenderer.invalidate();
                 }
             }

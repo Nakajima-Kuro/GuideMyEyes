@@ -1,7 +1,6 @@
 package com.guidemyeyes.common.rendering;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,24 +12,32 @@ import androidx.annotation.Nullable;
 import com.guidemyeyes.Coordinate;
 
 public class RadarRenderer extends View {
+    //Orientation
+    private final int ROTATION_0 = 0;  //^
+    private final int ROTATION_90 = 1; //<-
+    private final int ROTATION_180 = 2;//v
+    private final int ROTATION_270 = 3;//->
 
-    // setup initial color
-    private final int paintColor = Color.TRANSPARENT;
     // defines paint and canvas
     private Paint drawPaint;
     //Coordinate of the closest point
     private Coordinate coor;
+    //Orientation of the device
+    private int orientation;
 
     public RadarRenderer(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         setupPaint();
         this.setBackgroundColor(Color.TRANSPARENT);
         this.coor = new Coordinate((getWidth() / 2), (getHeight() / 2), getWidth(), getHeight(), (short) 0);
+        this.orientation = 1; //Default portrait, head upward
     }
 
     // Setup paint with color and stroke styles
     private void setupPaint() {
         drawPaint = new Paint();
+        // setup initial color
+        int paintColor = Color.TRANSPARENT;
         drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
         drawPaint.setStrokeWidth(20);
@@ -71,26 +78,46 @@ public class RadarRenderer extends View {
             * */
             float drawX, drawY;
             //Check if phone in landscape or potrait
-            int orientation = getResources().getConfiguration().orientation;
-            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                // In landscape
-                drawX = coor.getX() * getWidth() / coor.getWidth();
-                drawY = coor.getY() * getHeight() / coor.getHeight();
-            } else {
-                // In portrait
-                drawX = getWidth() - coor.getY() * getWidth() / coor.getHeight();
-                drawY = coor.getX() * getHeight() / coor.getWidth();
+            switch (orientation) {
+                case ROTATION_0: {
+                    //In Portrait, head face upward
+                    drawX = getWidth() - (float) coor.getY() * getWidth() / coor.getHeight();
+                    drawY = (float) coor.getX() * getHeight() / coor.getWidth();
+                    break;
+                }
+                case ROTATION_90: {
+                    //In Landscape, head face to left
+                    drawX = (float) coor.getX() * getWidth() / coor.getWidth();
+                    drawY = (float) coor.getY() * getHeight() / coor.getHeight();
+                    break;
+                }
+                case ROTATION_180: {
+                    //In Portrait, head face downward (Not surport)
+                    drawX = (float) getWidth() / 2;
+                    drawY = (float) getHeight() / 2;
+                    break;
+                }
+                case ROTATION_270: {
+                    //In Landscape, head face to right
+                    drawX = getWidth() - (float) coor.getX() * getWidth() / coor.getWidth();
+                    drawY = getHeight() - (float) coor.getY() * getHeight() / coor.getHeight();
+                    break;
+                }
+                default: {
+                    return;
+                }
             }
 
             canvas.drawCircle(drawX, drawY, 10, drawPaint);
             drawPaint.setColor(Color.RED);
-            canvas.drawCircle(getWidth() / 2, getHeight() / 2, 10, drawPaint);
+            canvas.drawCircle((float) getWidth() / 2, (float) getHeight() / 2, 10, drawPaint);
         }
     }
 
-    public void setCoordinate(Coordinate coor) {
+    public void setCoordinate(Coordinate coor, int orientation) {
         if (coor != null) {
             this.coor = coor;
+            this.orientation = orientation;
         }
     }
 }
