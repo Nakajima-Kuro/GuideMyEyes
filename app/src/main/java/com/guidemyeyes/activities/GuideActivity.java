@@ -23,6 +23,8 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.ar.core.ArCoreApk;
+import com.google.ar.core.CameraConfig;
+import com.google.ar.core.CameraConfigFilter;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
@@ -45,6 +47,8 @@ import com.guidemyeyes.common.rendering.RadarRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.EnumSet;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -127,10 +131,10 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
         });
     }
 
-    private void checkDevMode(){
+    private void checkDevMode() {
         devMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dev_mode", false);
 //        Get View for both Development View and Normal View
-        if(devMode){
+        if (devMode) {
             //Hide Logo
             findViewById(R.id.guide_logo).setVisibility(View.GONE);
         }
@@ -176,7 +180,20 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 }
                 session.configure(config);
 
+                // Create a camera config filter for the session.
+                CameraConfigFilter filter = new CameraConfigFilter(session);
 
+                // Return only camera configs that will not use the depth sensor.
+                filter.setDepthSensorUsage(EnumSet.of(CameraConfig.DepthSensorUsage.REQUIRE_AND_USE));
+
+                // Get list of configs that match filter settings.
+                List<CameraConfig> cameraConfigList = session.getSupportedCameraConfigs(filter);
+
+                if (cameraConfigList.size() > 0) {
+                    //If device has depth sensor camera, use that camera
+                    session.setCameraConfig(cameraConfigList.get(0));
+                }
+                
             } catch (UnavailableArcoreNotInstalledException
                     | UnavailableUserDeclinedInstallationException e) {
                 message = "Please install ARCore";
@@ -293,7 +310,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 depthTexture.update(frame);
             }
 
-            if(devMode){
+            if (devMode) {
                 // If frame is ready, render camera preview image to the GL surface.
                 backgroundRenderer.draw(frame);
                 if (showDepthMap) {
@@ -303,10 +320,10 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
 
             //Render sound base on relative position of the closest point with the frame
-            if(isDepthSupported){
+            if (isDepthSupported) {
                 int orientation = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
                 Coordinate coor = radarHandler.renderPosition(frame, orientation);
-                if(coor != null && devMode){
+                if (coor != null && devMode) {
                     radarRenderer.setCoordinate(coor, orientation);
                     radarRenderer.invalidate();
                 }
