@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.Image;
 import android.media.SoundPool;
+import android.util.Log;
 
 import com.google.ar.core.Frame;
 import com.google.ar.core.exceptions.NotYetAvailableException;
@@ -13,12 +14,17 @@ import java.nio.ByteOrder;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static android.content.ContentValues.TAG;
+
 public class RadarHandler {
     //Orientation
     private final int ROTATION_0 = 0;  //^
     private final int ROTATION_90 = 1; //<-
     private final int ROTATION_180 = 2;//v
     private final int ROTATION_270 = 3;//->
+
+    //Set a weight value so that further depth point from the centre of the image will be less important
+    private final short weight = 200;
 
     Context context;
 
@@ -38,7 +44,7 @@ public class RadarHandler {
 
         //initialize Soundpool
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build();
 
@@ -72,29 +78,29 @@ public class RadarHandler {
                 /* Scan for closet pixel of the depth image
                  * AR Core Coordinate System is a bit funny
                     y (Height)
-                    <-----------------------
-                                            |
-                                            |
-                                            |
-                                            |
-                                            |
-                                            | x (Width)
-                                            v
+                    <-----------------------                       ------------   Device Orientation (Portrait, head upward)
+                                            |                     |    ----    |
+                                            |                     |            |
+                                            |                     |            |
+                                            |                     |            |
+                                            |                     |            |
+                                            | x (Width)           |      O     |
+                                            v                     --------------
                 */
             Image.Plane plane = depthImage.getPlanes()[0];
             switch (orientation) {
                 case ROTATION_0: {
                     //In Portrait, head face upward
-                    for (int i = 0; i < width / 3 * 2; i++) {
+                    for (int i = 0; i < width; i++) {
                         for (int j = 0; j < height; j++) {
                             //i === x
                             //j === y
                             int byteIndex = i * plane.getPixelStride() + j * plane.getRowStride();
                             ByteBuffer buffer = plane.getBuffer().order(ByteOrder.nativeOrder());
                             short depthSample = buffer.getShort(byteIndex);
-
                             //Check if this depth is closer
-                            if (depthSample < coor.getDepth()) {
+                            Coordinate tempCoor = new Coordinate(i, j, width, height, depthSample);
+                            if (getSensorValue(tempCoor) < getSensorValue(coor)) {
                                 //Update new position
                                 coor.setDepth(depthSample);
                                 coor.setX(i);
@@ -107,14 +113,13 @@ public class RadarHandler {
                 case ROTATION_90:
                 case ROTATION_270: {
                     //In Landscape, head face to left
-                    for (int i = 0; i < width; i++) {
+                    for (int i = 0; i < width / 4 * 3; i++) {
                         for (int j = 0; j < height; j++) {
                             //i === x
                             //j === y
                             int byteIndex = i * plane.getPixelStride() + j * plane.getRowStride();
                             ByteBuffer buffer = plane.getBuffer().order(ByteOrder.nativeOrder());
                             short depthSample = buffer.getShort(byteIndex);
-
                             //Check if this depth is closer
                             if (depthSample < coor.getDepth()) {
                                 //Update new position
@@ -152,6 +157,14 @@ public class RadarHandler {
         }
     }
 
+    private float getSensorValue(Coordinate coor) {
+        float halfWidth = (float) coor.getWidth() / 2;
+        float halfHeight = (float) coor.getHeight() / 2;
+        return (float) coor.getDepth()
+                + weight * (Math.abs(coor.getX() - halfWidth) / halfWidth)
+                + weight * (Math.abs(coor.getY() - halfHeight) / halfHeight);
+    }
+
     /**
      * Play sound to make person have immersion of location of the point on depth map
      *
@@ -159,16 +172,29 @@ public class RadarHandler {
      */
     public void playSound(Coordinate coor, int orientation) {
         if (!isPlaying && coor.getDepth() > 0) {
-            float leftVolume = 0.4f, rightVolume = 0.4f;
+            //Init the volume will be when depth point is horizontal middle. The lower the value, the higher the volume change
+            float baseVolume = 0.4f;
+
+            //Left, Right volume to immerse location in horizontal
+            float leftVolume = baseVolume, rightVolume = baseVolume;
+
+            //Pitch to immerse location in vertical
+            float pitch = 2.0f;
+
+            float halfHeight = (float) coor.getHeight() / 2;
+            float halfWidth = (float) coor.getWidth() / 2;
             switch (orientation) {
                 case ROTATION_0: {
                     //In Portrait, head face upward
-                    int height = coor.getHeight();
                     isPlaying = true;
-                    //Get the offset to immerse location
-                    float offset = 0.6f * (coor.getY() - (float) height / 2) / ((float) height / 2);
+                    //Get the offset to immerse location in horizontal
+                    float offset = (1 - baseVolume) * (coor.getY() - halfHeight) / (halfHeight / 2);
                     leftVolume += offset;
                     rightVolume -= offset;
+//                    //Get the offset to immerse location in vertical
+//                    offset = 1.5f * ((float) coor.getX() / (float) coor.getWidth());
+//                    pitch -= offset;
+                    Log.i(TAG, "Pitch: " + pitch + ", Offset: " + coor.getWidth());
                     break;
                 }
                 case ROTATION_90: {
@@ -176,7 +202,7 @@ public class RadarHandler {
                     int width = coor.getWidth();
                     isPlaying = true;
                     //Get the offset to immerse location
-                    float offset = 0.6f * (coor.getX() - (float) width / 2) / ((float) width / 2);
+                    float offset = (1 - baseVolume) * (coor.getX() - (float) width / 2) / ((float) width / 2);
                     leftVolume -= offset;
                     rightVolume += offset;
                     break;
@@ -186,7 +212,7 @@ public class RadarHandler {
                     int width = coor.getWidth();
                     isPlaying = true;
                     //Get the offset to immerse location
-                    float offset = 0.6f * (coor.getX() - (float) width / 2) / ((float) width / 2);
+                    float offset = (1 - baseVolume) * (coor.getX() - (float) width / 2) / ((float) width / 2);
                     leftVolume += offset;
                     rightVolume -= offset;
                     break;
@@ -200,14 +226,18 @@ public class RadarHandler {
             //Playing radar sound
             float finalLeftVolume = Math.min(Math.max(leftVolume, 0), 1);
             float finalRightVolume = Math.min(Math.max(rightVolume, 0), 1);
+            float finalPitch = pitch;
+            //Interval between sound to immerse the distance
+            int interval = (int) Math.min(Math.max(coor.getDepth() * 0.8, 50), 1500);
+            //Sound pitch to immerse height. Higher pitch make higher feel of location while lower pitch make lower feel of location (Science proved)
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    soundPool.play(far, finalLeftVolume, finalRightVolume, 0, 0, 0.7f);
+                    soundPool.play(far, finalLeftVolume, finalRightVolume, 0, 0, finalPitch);
                     isPlaying = false;
                 }
-            }, Math.min(Math.max(coor.getDepth(), 50), 1500));
+            }, interval);
         }
     }
 
