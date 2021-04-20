@@ -91,7 +91,7 @@ public class RadarHandler {
             switch (orientation) {
                 case ROTATION_0: {
                     //In Portrait, head face upward
-                    for (int i = 0; i < width; i++) {
+                    for (int i = 0; i < width / 4 * 3; i++) {
                         for (int j = 0; j < height; j++) {
                             //i === x
                             //j === y
@@ -173,7 +173,7 @@ public class RadarHandler {
     public void playSound(Coordinate coor, int orientation) {
         if (!isPlaying && coor.getDepth() > 0) {
             //Init the volume will be when depth point is horizontal middle. The lower the value, the higher the volume change
-            float baseVolume = 0.4f;
+            float baseVolume = 0.6f;
 
             //Left, Right volume to immerse location in horizontal
             float leftVolume = baseVolume, rightVolume = baseVolume;
@@ -191,10 +191,6 @@ public class RadarHandler {
                     float offset = (1 - baseVolume) * (coor.getY() - halfHeight) / (halfHeight / 2);
                     leftVolume += offset;
                     rightVolume -= offset;
-//                    //Get the offset to immerse location in vertical
-//                    offset = 1.5f * ((float) coor.getX() / (float) coor.getWidth());
-//                    pitch -= offset;
-                    Log.i(TAG, "Pitch: " + pitch + ", Offset: " + coor.getWidth());
                     break;
                 }
                 case ROTATION_90: {
@@ -223,12 +219,14 @@ public class RadarHandler {
                     return;
                 }
             }
+            //Change pitch to immerse the distance
+            pitch -= 1.5f * Math.min(((float) coor.getDepth() / 6000), 1);
             //Playing radar sound
             float finalLeftVolume = Math.min(Math.max(leftVolume, 0), 1);
             float finalRightVolume = Math.min(Math.max(rightVolume, 0), 1);
             float finalPitch = pitch;
             //Interval between sound to immerse the distance
-            int interval = (int) Math.min(Math.max(coor.getDepth() * 0.8, 50), 1500);
+            int interval = (int) Math.min(Math.max(coor.getDepth() * 0.5, 50), 1500);
             //Sound pitch to immerse height. Higher pitch make higher feel of location while lower pitch make lower feel of location (Science proved)
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
