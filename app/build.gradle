@@ -28,6 +28,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    aaptOptions {
+        noCompress "tflite"
+    }
 }
 
 dependencies {
@@ -49,6 +52,9 @@ dependencies {
     //AR Core
     implementation 'com.google.ar:core:1.23.0'
     implementation "com.google.android.gms:play-services-location:18.0.0"
+
+    //TF Lite Vision
+    implementation 'org.tensorflow:tensorflow-lite-task-vision:0.1.0'
 
     //Camera view api
     api 'com.otaliastudios:cameraview:2.7.0'

@@ -298,7 +298,6 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 }
             }
 
-
             //Render sound base on relative position of the closest point with the frame
             if (isDepthSupported) {
                 int orientation = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();

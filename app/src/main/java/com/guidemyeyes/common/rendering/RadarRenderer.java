@@ -111,6 +111,12 @@ public class RadarRenderer extends View {
             canvas.drawCircle(drawX, drawY, 10, drawPaint);
             drawPaint.setColor(Color.RED);
             canvas.drawCircle((float) getWidth() / 2, (float) getHeight() / 2, 10, drawPaint);
+            drawPaint.setColor(Color.BLUE);
+            drawPaint.setTextSize(30);
+            drawPaint.setStrokeWidth(3);
+            canvas.drawText("Depth: " + coor.getDepth(), drawX + 40, drawY, drawPaint);
+            canvas.drawText("X: " + drawX, drawX + 40, drawY + 40, drawPaint);
+            canvas.drawText("Y: " + drawY, drawX + 40, drawY + 80, drawPaint);
         }
     }
 
