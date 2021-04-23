@@ -25,7 +25,7 @@ public class RadarHandler {
 
     //Set a weight value so that further depth point from the centre of the image will be less important
     private final short weight = 300;
-    private final short maxDepth = 6000;
+    private final short maxDepth = 8000;
 
     Context context;
 
