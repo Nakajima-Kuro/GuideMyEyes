@@ -4,7 +4,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
+import android.media.Image;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -33,6 +36,7 @@ import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.guidemyeyes.Coordinate;
 import com.guidemyeyes.DepthTextureHandler;
+import com.guidemyeyes.DetectionHandler;
 import com.guidemyeyes.R;
 import com.guidemyeyes.RadarHandler;
 import com.guidemyeyes.common.helpers.CameraPermissionHelper;
@@ -42,8 +46,13 @@ import com.guidemyeyes.common.rendering.BackgroundRenderer;
 import com.guidemyeyes.common.rendering.RadarRenderer;
 
 import org.jetbrains.annotations.NotNull;
+import org.tensorflow.lite.support.image.TensorImage;
+import org.tensorflow.lite.task.vision.detector.Detection;
+import org.tensorflow.lite.task.vision.detector.ObjectDetector;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -67,6 +76,8 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
     private RadarRenderer radarRenderer;
 
     private boolean showDepthMap = true;
+
+    private DetectionHandler detectionHandler;
 
     private boolean devMode = false;
 
@@ -95,6 +106,9 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
         //Set up RadarHandler
         radarHandler = new RadarHandler(this);
         radarRenderer = findViewById(R.id.radarRendererLayout);
+
+        //Set up DetectionHandler
+        detectionHandler = new DetectionHandler(this);
 
         installRequested = false;
 
@@ -291,6 +305,8 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
             }
 
             if (devMode) {
+                List<Detection> results = detectionHandler.detect(frame);
+                Log.i(TAG, "Detections: " + results);
                 // If frame is ready, render camera preview image to the GL surface.
                 backgroundRenderer.draw(frame);
                 if (showDepthMap) {
@@ -307,7 +323,6 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                     radarRenderer.invalidate();
                 }
             }
-
         } catch (Throwable t) {
             // Avoid crashing the application due to unhandled exceptions.
             Log.e(TAG, "Exception on the OpenGL thread", t);

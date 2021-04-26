@@ -87,56 +87,24 @@ public class RadarHandler {
                                             v                     --------------
                 */
             Image.Plane plane = depthImage.getPlanes()[0];
-            switch (orientation) {
-                case ROTATION_0: {
-                    //In Portrait, head face upward
-                    for (int i = 0; i < width / 4 * 3; i++) {
-                        for (int j = 0; j < height; j++) {
-                            //i === x
-                            //j === y
-                            int byteIndex = i * plane.getPixelStride() + j * plane.getRowStride();
-                            ByteBuffer buffer = plane.getBuffer().order(ByteOrder.nativeOrder());
-                            short depthSample = buffer.getShort(byteIndex);
-                            //Check if this depth is closer
-                            Coordinate tempCoor = new Coordinate(i, j, width, height, depthSample);
-                            if (getSensorValue(tempCoor) < getSensorValue(coor)) {
-                                //Update new position
-                                coor.setDepth(depthSample);
-                                coor.setX(i);
-                                coor.setY(j);
-                            }
-                        }
+            for (int i = 0; i < width / 4 * 3; i++) {
+                for (int j = 0; j < height; j++) {
+                    //i === x
+                    //j === y
+                    int byteIndex = i * plane.getPixelStride() + j * plane.getRowStride();
+                    ByteBuffer buffer = plane.getBuffer().order(ByteOrder.nativeOrder());
+                    short depthSample = buffer.getShort(byteIndex);
+                    //Check if this depth is closer
+                    Coordinate tempCoor = new Coordinate(i, j, width, height, depthSample);
+                    if (getSensorValue(tempCoor) < getSensorValue(coor)) {
+                        //Update new position
+                        coor.setDepth(depthSample);
+                        coor.setX(i);
+                        coor.setY(j);
                     }
-                    break;
-                }
-                case ROTATION_90:
-                case ROTATION_270: {
-                    //In Landscape, head face to left
-                    for (int i = 0; i < width / 4 * 3; i++) {
-                        for (int j = 0; j < height; j++) {
-                            //i === x
-                            //j === y
-                            int byteIndex = i * plane.getPixelStride() + j * plane.getRowStride();
-                            ByteBuffer buffer = plane.getBuffer().order(ByteOrder.nativeOrder());
-                            short depthSample = buffer.getShort(byteIndex);
-                            //Check if this depth is closer
-                            if (depthSample < coor.getDepth()) {
-                                //Update new position
-                                coor.setDepth(depthSample);
-                                coor.setX(i);
-                                coor.setY(j);
-                            }
-                        }
-                    }
-                    break;
-                }
-                case ROTATION_180:
-                default: {
-                    //In Portrait, head face downward (Not support)
-                    //Or invalid orientation
-                    return null;
                 }
             }
+            depthImage.close();
             playSound(coor, orientation);
             return coor;
         } catch (NotYetAvailableException e) {
@@ -182,38 +150,9 @@ public class RadarHandler {
             float pitch = 2.0f;
 
             float halfHeight = (float) coor.getHeight() / 2;
-            float halfWidth = (float) coor.getWidth() / 2;
-            switch (orientation) {
-                case ROTATION_0: {
-                    //In Portrait, head face upward
-                    //Get the offset to immerse location in horizontal
-                    float offset = (1 - baseVolume) * (coor.getY() - halfHeight) / halfHeight;
-                    leftVolume += offset;
-                    rightVolume -= offset;
-                    break;
-                }
-                case ROTATION_90: {
-                    //In Landscape, head face to left
-                    //Get the offset to immerse location
-                    float offset = (1 - baseVolume) * (coor.getX() - halfWidth) / halfWidth;
-                    leftVolume -= offset;
-                    rightVolume += offset;
-                    break;
-                }
-                case ROTATION_270: {
-                    //In Landscape, head face to right
-                    //Get the offset to immerse location
-                    float offset = (1 - baseVolume) * (coor.getX() - halfWidth) / halfWidth;
-                    leftVolume += offset;
-                    rightVolume -= offset;
-                    break;
-                }
-                case ROTATION_180:
-                default: {
-                    //In Portrait, head face downward (Not support)
-                    return;
-                }
-            }
+            float offset = (1 - baseVolume) * (coor.getY() - halfHeight) / halfHeight;
+            leftVolume += offset;
+            rightVolume -= offset;
             //Change pitch to immerse the distance
             pitch -= 1.5f * Math.min(((float) coor.getDepth() / maxDepth), 1);
             //Playing radar sound
