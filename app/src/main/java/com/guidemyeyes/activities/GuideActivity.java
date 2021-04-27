@@ -4,10 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
-import android.media.Image;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -43,15 +40,13 @@ import com.guidemyeyes.common.helpers.CameraPermissionHelper;
 import com.guidemyeyes.common.helpers.DisplayRotationHelper;
 import com.guidemyeyes.common.helpers.FullScreenHelper;
 import com.guidemyeyes.common.rendering.BackgroundRenderer;
+import com.guidemyeyes.common.rendering.DetectionRenderer;
 import com.guidemyeyes.common.rendering.RadarRenderer;
 
 import org.jetbrains.annotations.NotNull;
-import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.task.vision.detector.Detection;
-import org.tensorflow.lite.task.vision.detector.ObjectDetector;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -78,6 +73,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
     private boolean showDepthMap = true;
 
     private DetectionHandler detectionHandler;
+    private DetectionRenderer detectionRenderer;
 
     private boolean devMode = false;
 
@@ -109,6 +105,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
         //Set up DetectionHandler
         detectionHandler = new DetectionHandler(this);
+        detectionRenderer = findViewById(R.id.detectionRendererLayout);
 
         installRequested = false;
 
@@ -305,8 +302,10 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
             }
 
             if (devMode) {
-                List<Detection> results = detectionHandler.detect(frame);
-                Log.i(TAG, "Detections: " + results);
+//                List<Detection> results = detectionHandler.detect(frame);
+//                detectionRenderer.setDetections(results);
+//                detectionRenderer.invalidate();
+
                 // If frame is ready, render camera preview image to the GL surface.
                 backgroundRenderer.draw(frame);
                 if (showDepthMap) {
@@ -318,6 +317,8 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
             if (isDepthSupported) {
                 int orientation = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
                 Coordinate coor = radarHandler.renderPosition(frame, orientation);
+
+                //Render the coordinate for closest point on screen [Dev mode]
                 if (coor != null && devMode) {
                     radarRenderer.setCoordinate(coor, orientation);
                     radarRenderer.invalidate();
