@@ -7,7 +7,6 @@ import android.media.Image;
 
 import com.google.ar.core.Frame;
 import com.google.ar.core.exceptions.NotYetAvailableException;
-import com.guidemyeyes.common.helpers.YuvToRgbConverter;
 
 import org.jetbrains.annotations.NotNull;
 import org.tensorflow.lite.support.image.ImageProcessor;
@@ -24,7 +23,6 @@ public class DetectionHandler {
 
     private ObjectDetector objectDetector;
     private TensorImage tensorImage = new TensorImage();
-    private YuvToRgbConverter yuvToRgbConverter;
 
     private long currentTimestamp;
 
@@ -34,7 +32,6 @@ public class DetectionHandler {
             currentTimestamp = 0;
             ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder().setMaxResults(10).build();
             objectDetector = ObjectDetector.createFromFileAndOptions(context, "ssd_mobilenet_v1_1_metadata_1.tflite", options);
-            yuvToRgbConverter = new YuvToRgbConverter(context);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,8 +47,7 @@ public class DetectionHandler {
                 }
                 //Convert Android.media.Image to bitmap (On later version of TFLite, this will be redundant)
                 Bitmap bitmapImage = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
-                yuvToRgbConverter.yuvToRgb(image, bitmapImage);
-                
+
                 //Pre-processing Image
                 int width = bitmapImage.getWidth();
                 int height = bitmapImage.getHeight();
