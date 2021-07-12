@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.media.Image;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.renderscript.RenderScript;
@@ -30,6 +31,8 @@ import java.util.List;
 
 public class DetectionHandler {
 
+    private String TAG = "DetectionHandler";
+
     private ObjectDetector objectDetector;
     private TensorImage tensorImage = new TensorImage();
     private RenderScript renderScript;
@@ -41,8 +44,11 @@ public class DetectionHandler {
         //Set up TF Lite Object Detection
         try {
             currentTimestamp = 0;
-            ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder().setMaxResults(10).build();
-            objectDetector = ObjectDetector.createFromFileAndOptions(context, "ssd_mobilenet_v1_1_metadata_1.tflite", options);
+            ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder()
+                    .setMaxResults(5)
+                    .setScoreThreshold(0.5f)
+                    .build();
+            objectDetector = ObjectDetector.createFromFileAndOptions(context, "model.tflite", options);
             renderScript = RenderScript.create(context);
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,6 +66,8 @@ public class DetectionHandler {
                 //Convert Android.media.Image to bitmap (On later version of TFLite, this will be redundant)
                 Bitmap bitmapImage = ColorConvertHelper.YUV_420_888_toRGBIntrinsics(renderScript, image);
 
+                Log.i(TAG, "detect: " + bitmapImage.getWidth() + ", " + bitmapImage.getHeight());
+
                 //Pre-processing Image
                 if (imageProcessor == null) {
                     int width = bitmapImage.getWidth();
@@ -70,15 +78,20 @@ public class DetectionHandler {
                                     // Center crop the image to the largest square possible
                                     .add(new ResizeWithCropOrPadOp(size, size))
                                     // Resize using Bilinear or Nearest neighbour
-                                    .add(new ResizeOp(300, 300, ResizeOp.ResizeMethod.BILINEAR))
+                                    .add(new ResizeOp(600, 600, ResizeOp.ResizeMethod.BILINEAR))
                                     // Rotation counter-clockwise in 90 degree increments
                                     .build();
                 }
                 //Load bitmap to Tensor Image
                 tensorImage.load(bitmapImage);
-                tensorImage = imageProcessor.process(tensorImage);
+//                tensorImage = imageProcessor.process(tensorImage);
 
-                return objectDetector.detect(tensorImage);
+                List<Detection> results = objectDetector.detect(tensorImage);
+                for (Detection result : results){
+
+//                    Log.i("TAG", "detect: " + result.toString());
+                }
+                return results;
             }
         }
         return null;

@@ -15,16 +15,19 @@
 package com.guidemyeyes.common.rendering;
 
 import android.content.Context;
+import android.media.Image;
 import android.opengl.EGLConfig;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.google.ar.core.Coordinates2d;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
+import com.google.ar.core.exceptions.NotYetAvailableException;
 import com.guidemyeyes.Coordinate;
 
 import java.io.IOException;
@@ -164,7 +167,7 @@ public class BackgroundRenderer {
      *
      * @param frame The current {@code Frame} as returned by {@link Session#update()}.
      */
-    public void draw(@NonNull Frame frame) {
+    public Frame draw(@NonNull Frame frame) {
         // If display rotation changed (also includes view size change), we need to re-query the uv
         // coordinates for the screen rect, as they may have changed as well.
         if (frame.hasDisplayGeometryChanged()) {
@@ -178,10 +181,11 @@ public class BackgroundRenderer {
         if (frame.getTimestamp() == 0) {
             // Suppress rendering if the camera did not produce the first frame yet. This is to avoid
             // drawing possible leftover data from previous sessions if the texture is reused.
-            return;
+            return null;
         }
 
         draw();
+        return frame;
     }
 
     /**

@@ -66,5 +66,5 @@ dependencies {
     implementation 'org.tensorflow:tensorflow-lite-task-vision:0.1.0'
 
     //Camera view api
-    api 'com.otaliastudios:cameraview:2.7.0'
+//    api 'com.otaliastudios:cameraview:2.7.0'
 }

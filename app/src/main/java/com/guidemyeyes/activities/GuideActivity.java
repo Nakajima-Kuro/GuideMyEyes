@@ -298,23 +298,24 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
             // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
             // camera framerate.
             Frame frame = session.update();
-
             // Retrieves the latest depth image for this frame.
             if (isDepthSupported) {
                 depthTexture.update(frame);
             }
 
             if (devMode) {
-//                List<Detection> results = detectionHandler.detect(frame);
-//                detectionRenderer.setDetections(results);
-//                detectionRenderer.invalidate();
-
                 // If frame is ready, render camera preview image to the GL surface.
-                backgroundRenderer.draw(frame);
-                createBitmapFromGLSurface(0,0,)
+                Frame cameraFrame = backgroundRenderer.draw(frame);
+
+                // Render the depth map
                 if (showDepthMap) {
                     backgroundRenderer.drawDepth(frame);
                 }
+
+                // Load new camera preview frame into detection
+                List<Detection> results = detectionHandler.detect(cameraFrame);
+                detectionRenderer.setDetections(results);
+                detectionRenderer.invalidate();
             }
 
             //Render sound base on relative position of the closest point with the frame

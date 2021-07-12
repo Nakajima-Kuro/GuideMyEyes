@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -54,6 +55,8 @@ public class DetectionRenderer extends View {
                 }
             }
         }
+//        Log.i("TAG", "Canvas Width: " + canvas.getWidth());
+//        Log.i("TAG", "Canvas Height: " + canvas.getHeight());
     }
 
     public void setDetections(List<Detection> detections) {
