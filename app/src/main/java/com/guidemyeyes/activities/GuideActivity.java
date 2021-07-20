@@ -312,10 +312,6 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                     backgroundRenderer.drawDepth(frame);
                 }
 
-                // Load new camera preview frame into detection
-                List<Detection> results = detectionHandler.detect(cameraFrame);
-                detectionRenderer.setDetections(results);
-                detectionRenderer.invalidate();
             }
 
             //Render sound base on relative position of the closest point with the frame
@@ -323,10 +319,19 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 int orientation = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
                 Coordinate coor = radarHandler.renderPosition(frame, orientation);
 
-                //Render the coordinate for closest point on screen [Dev mode]
-                if (coor != null && devMode) {
-                    radarRenderer.setCoordinate(coor, orientation);
-                    radarRenderer.invalidate();
+                if (coor != null) {
+                    Bitmap testImage = createBitmapFromGLSurface(0, 0, surfaceView.getWidth(), surfaceView.getHeight());
+
+                    // Load new camera preview frame into detection
+                    Detection bestResult = detectionHandler.detect(testImage, coor);
+                    detectionRenderer.setDetections(bestResult);
+                    detectionRenderer.invalidate();
+
+                    //Render the coordinate for closest point on screen [Dev mode]
+                    if (devMode) {
+                        radarRenderer.setCoordinate(coor, orientation);
+                        radarRenderer.invalidate();
+                    }
                 }
             }
         } catch (Throwable t) {
@@ -335,15 +340,16 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
         }
     }
 
-    private Bitmap createBitmapFromGLSurface(int x, int y, int w, int h, GL10 gl)
+    private Bitmap createBitmapFromGLSurface(int x, int y, int w, int h)
             throws OutOfMemoryError {
         int bitmapBuffer[] = new int[w * h];
         int bitmapSource[] = new int[w * h];
         IntBuffer intBuffer = IntBuffer.wrap(bitmapBuffer);
         intBuffer.position(0);
-
         try {
-            gl.glReadPixels(x, y, w, h, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, intBuffer);
+
+
+            GLES20.glReadPixels(x, y, w, h, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, intBuffer);
             int offset1, offset2;
             for (int i = 0; i < h; i++) {
                 offset1 = i * w;
@@ -357,9 +363,9 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 }
             }
         } catch (GLException e) {
+            e.printStackTrace();
             return null;
         }
-
         return Bitmap.createBitmap(bitmapSource, w, h, Bitmap.Config.ARGB_8888);
     }
 

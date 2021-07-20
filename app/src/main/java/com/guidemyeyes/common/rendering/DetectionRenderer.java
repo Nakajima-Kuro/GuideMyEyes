@@ -19,11 +19,11 @@ public class DetectionRenderer extends View {
     // defines paint and canvas
     private Paint drawPaint;
     // list of detection
-    private List<Detection> detections;
+    private Detection detection;
 
     public DetectionRenderer(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        detections = null;
+        detection = null;
         setupPaint();
     }
 
@@ -44,22 +44,20 @@ public class DetectionRenderer extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         drawPaint.setColor(Color.BLUE);
-        if(detections != null){
-            for(Detection detection : detections){
-                //If the score if more than 0.5, to filter the false positive without leaving any false negative
-                if(detection.getCategories().get(0).getScore() > 0.5f){
-                    //Draw the rectangle surround object
-                    canvas.drawRect(detection.getBoundingBox(), drawPaint);
-                    //Draw the label on top left of object
-                    canvas.drawText(detection.getCategories().get(0).getLabel(), detection.getBoundingBox().left, detection.getBoundingBox().top, drawPaint);
-                }
+        if (detection != null) {
+            //If the score if more than 0.5, to filter the false positive without leaving any false negative
+            if (detection.getCategories().get(0).getScore() > 0.5f) {
+                //Draw the rectangle surround object
+                canvas.drawRect(detection.getBoundingBox(), drawPaint);
+                //Draw the label on top left of object
+                canvas.drawText(detection.getCategories().get(0).getLabel(), detection.getBoundingBox().left, detection.getBoundingBox().top, drawPaint);
             }
         }
 //        Log.i("TAG", "Canvas Width: " + canvas.getWidth());
 //        Log.i("TAG", "Canvas Height: " + canvas.getHeight());
     }
 
-    public void setDetections(List<Detection> detections) {
-        this.detections = detections;
+    public void setDetections(Detection detection) {
+        this.detection = detection;
     }
 }

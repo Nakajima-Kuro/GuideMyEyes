@@ -63,7 +63,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:18.0.0"
 
     //TF Lite Vision
-    implementation 'org.tensorflow:tensorflow-lite-task-vision:0.1.0'
+    implementation 'org.tensorflow:tensorflow-lite-task-vision:0.2.0'
 
     //Camera view api
 //    api 'com.otaliastudios:cameraview:2.7.0'
