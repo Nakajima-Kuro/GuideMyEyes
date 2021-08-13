@@ -122,6 +122,11 @@ public class RadarHandler {
         }
     }
 
+    /**
+     * Get the weight of that depth pixel base on location on screen. Further away from center of the screen, lower the weight
+     *
+     * @param coor coordinate of the point want to render sound
+     */
     private float getSensorValue(Coordinate coor) {
         float halfWidth = (float) coor.getWidth() / 2;
         float halfHeight = (float) coor.getHeight() / 2;
@@ -146,7 +151,7 @@ public class RadarHandler {
             //Left, Right volume to immerse location in horizontal
             float leftVolume = baseVolume, rightVolume = baseVolume;
 
-            //Pitch to immerse location in vertical
+            //Pitch to immerse the distance
             float pitch = 2.0f;
 
             float halfHeight = (float) coor.getHeight() / 2;

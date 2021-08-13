@@ -25,8 +25,8 @@ public class DetectionHandler {
 
     private ObjectDetector objectDetector;
     private TensorImage tensorImage = new TensorImage();
-    private RenderScript renderScript;
     private ImageProcessor imageProcessor = null;
+    private boolean computingDetection = false;
 
     private long currentTimestamp;
 
@@ -35,10 +35,9 @@ public class DetectionHandler {
         try {
             currentTimestamp = 0;
             ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder()
-                    .setScoreThreshold(0.55f)
+                    .setScoreThreshold(0.6f)
                     .build();
-            objectDetector = ObjectDetector.createFromFileAndOptions(context, "model.tflite", options);
-            renderScript = RenderScript.create(context);
+            objectDetector = ObjectDetector.createFromFileAndOptions(context, "lite-model_efficientdet_lite0_detection_metadata_1.tflite", options);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,37 +59,42 @@ public class DetectionHandler {
                             // Rotation counter-clockwise in 90 degree increments
                             .build();
         }
-        //Load bitmap to Tensor Image
-        tensorImage.load(image);
-        tensorImage = imageProcessor.process(tensorImage);
-        List<Detection> results = objectDetector.detect(tensorImage);
+        if(!computingDetection){
+            computingDetection = true;
+            //Load bitmap to Tensor Image
+            tensorImage.load(image);
+            tensorImage = imageProcessor.process(tensorImage);
+            List<Detection> results = objectDetector.detect(tensorImage);
 
-        //Get the best detection that contain the closet point
-        Detection bestResult = null;
-        for (Detection result : results) {
-            //If the closet point also in the detection
-            if (result.getBoundingBox().contains(
-                    (float) coor.getX() / (float) coor.getWidth() * inputImageSize,
-                    (float) coor.getY() / (float) coor.getHeight() * inputImageSize
-            )
-            ) {
-                //If the new detection has higher score then the old one => more likely it the object
-                if (bestResult == null || result.getCategories().get(0).getScore() > bestResult.getCategories().get(0).getScore()) {
-                    bestResult = result;
+            //Get the best detection that contain the closet point
+            Detection bestResult = null;
+            for (Detection result : results) {
+                //If the closet point also in the detection
+                if (result.getBoundingBox().contains(
+                        (float) coor.getX() / (float) coor.getWidth() * inputImageSize,
+                        (float) coor.getY() / (float) coor.getHeight() * inputImageSize
+                )
+                ) {
+                    //If the new detection has higher score then the old one => more likely it the object
+                    if (bestResult == null || result.getCategories().get(0).getScore() > bestResult.getCategories().get(0).getScore()) {
+                        bestResult = result;
+                    }
                 }
             }
-        }
 
-        if (bestResult != null) {
-            bestResult.getBoundingBox().set(
-                    bestResult.getBoundingBox().left / inputImageSize * image.getWidth(),
-                    bestResult.getBoundingBox().top / inputImageSize * image.getHeight(),
-                    bestResult.getBoundingBox().right / inputImageSize * image.getWidth(),
-                    bestResult.getBoundingBox().bottom / inputImageSize * image.getHeight()
-            );
+            if (bestResult != null) {
+                //Re-coordinated the detection
+                bestResult.getBoundingBox().set(
+                        bestResult.getBoundingBox().left / inputImageSize * image.getWidth(),
+                        bestResult.getBoundingBox().top / inputImageSize * image.getHeight(),
+                        bestResult.getBoundingBox().right / inputImageSize * image.getWidth(),
+                        bestResult.getBoundingBox().bottom / inputImageSize * image.getHeight()
+                );
+            }
+            computingDetection = false;
+            return bestResult;
         }
-        //Re-coordinated the detection
-        return bestResult;
+        return null;
     }
 
 }
