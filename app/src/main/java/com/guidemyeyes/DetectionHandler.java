@@ -2,25 +2,27 @@ package com.guidemyeyes;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.media.Image;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
+import androidx.renderscript.RenderScript;
+
 import com.google.ar.core.Frame;
+import com.google.ar.core.ImageFormat;
 import com.google.ar.core.exceptions.NotYetAvailableException;
+import com.guidemyeyes.common.helpers.ColorConvertHelper;
 import com.guidemyeyes.common.rendering.ImageUlti;
 
 import org.jetbrains.annotations.NotNull;
 import org.tensorflow.lite.support.image.ImageProcessor;
 import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.image.ops.ResizeOp;
+import org.tensorflow.lite.support.image.ops.Rot90Op;
 import org.tensorflow.lite.task.vision.detector.Detection;
 import org.tensorflow.lite.task.vision.detector.ObjectDetector;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,6 +34,8 @@ public class DetectionHandler {
     private ObjectDetector objectDetector;
     private TensorImage tensorImage = new TensorImage();
     private ImageProcessor imageProcessor = null;
+
+    private ColorConvertHelper colorConvertHelper;
 
     //Text To Speech
     String objectName = null;
@@ -50,13 +54,15 @@ public class DetectionHandler {
                     new ImageProcessor.Builder()
                             // Resize using Bilinear or Nearest neighbour
                             .add(new ResizeOp(INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE, ResizeOp.ResizeMethod.BILINEAR))
+                            //Rotate 90 degrees
+                            .add(new Rot90Op(1))
                             .build();
             ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder()
                     .setScoreThreshold(0.6f)
                     .setNumThreads(4)
                     .build();
             objectDetector = ObjectDetector.createFromFileAndOptions(context, "lite-model_ssd_mobilenet_v1_1_metadata_2.tflite", options);
-
+            colorConvertHelper = new ColorConvertHelper(context);
             //Create new TextToSpeech
             textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
                 @Override
@@ -76,11 +82,14 @@ public class DetectionHandler {
             try (Image image = frame.acquireCameraImage()) {
                 currentTimestamp = frame.getTimestamp();
                 //Convert Image to Bitmap
-                ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                byte[] bytes = new byte[buffer.capacity()];
-                buffer.get(bytes);
-                Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
-                imageUlti.saveToInternalStorage(bitmapImage);
+                if (image.getFormat() != ImageFormat.YUV_420_888) {
+                    throw new IllegalArgumentException(
+                            "Expected image in YUV_420_888 format, got format " + image.getFormat());
+                }
+                //Convert Android.media.Image to bitmap (On later version of TFLite, this will be redundant)
+                Bitmap bitmapImage = colorConvertHelper.YUV_420_888_toRGBIntrinsics(image);
+
+//                imageUlti.saveToInternalStorage(bitmapImage);
                 //Load bitmap to Tensor Image
                 tensorImage.load(bitmapImage);
                 tensorImage = imageProcessor.process(tensorImage);

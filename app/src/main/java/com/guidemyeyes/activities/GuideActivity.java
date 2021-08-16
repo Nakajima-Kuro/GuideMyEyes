@@ -50,7 +50,6 @@ import org.tensorflow.lite.task.vision.detector.Detection;
 
 import java.io.IOException;
 import java.nio.IntBuffer;
-import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
