@@ -328,7 +328,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                         Bitmap testImage = createBitmapFromGLSurface(0, 0, surfaceView.getWidth(), surfaceView.getHeight());
 
                         // Load new camera preview frame into detection
-                        Detection bestResult = detectionHandler.detect(testImage, coor, frame.getTimestamp());
+                        Detection bestResult = detectionHandler.detect(frame, coor);
                         detectionRenderer.setDetections(bestResult);
                         detectionRenderer.invalidate();
                     }

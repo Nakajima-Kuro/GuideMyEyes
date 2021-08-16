@@ -2,13 +2,14 @@ package com.guidemyeyes;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Rect;
+import android.media.Image;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
-import androidx.renderscript.RenderScript;
-
+import com.google.ar.core.Frame;
 import com.google.ar.core.exceptions.NotYetAvailableException;
-import com.guidemyeyes.Coordinate;
 
 import org.jetbrains.annotations.NotNull;
 import org.tensorflow.lite.support.image.ImageProcessor;
@@ -18,12 +19,14 @@ import org.tensorflow.lite.task.vision.detector.Detection;
 import org.tensorflow.lite.task.vision.detector.ObjectDetector;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Locale;
 
 public class DetectionHandler {
 
     private String TAG = "DetectionHandler";
+    private final int INPUT_IMAGE_SIZE = 300;
 
     private ObjectDetector objectDetector;
     private TensorImage tensorImage = new TensorImage();
@@ -39,6 +42,11 @@ public class DetectionHandler {
         //Set up TF Lite Object Detection
         try {
             currentTimestamp = 0;
+            imageProcessor =
+                    new ImageProcessor.Builder()
+                            // Resize using Bilinear or Nearest neighbour
+                            .add(new ResizeOp(INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE, ResizeOp.ResizeMethod.BILINEAR))
+                            .build();
             ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder()
                     .setScoreThreshold(0.6f)
                     .setNumThreads(4)
@@ -59,66 +67,61 @@ public class DetectionHandler {
         }
     }
 
-    public Detection detect(@NotNull Bitmap image, @NotNull Coordinate coor, long timeStamp) {
-        if (timeStamp <= currentTimestamp){
-            return null;
-        } else {
-            currentTimestamp = timeStamp;
-        }
-//        Pre-processing Image
-        int inputImageSize = 300;
-        if (imageProcessor == null) {
-            int width = image.getWidth();
-            int height = image.getHeight();
-            int size = Math.min(height, width);
-            imageProcessor =
-                    new ImageProcessor.Builder()
-                            // Center crop the image to the largest square possible
-//                            .add(new ResizeWithCropOrPadOp(size, size))
-                            // Resize using Bilinear or Nearest neighbour
-                            .add(new ResizeOp(inputImageSize, inputImageSize, ResizeOp.ResizeMethod.BILINEAR))
-                            // Rotation counter-clockwise in 90 degree increments
-                            .build();
-        }
-        //Load bitmap to Tensor Image
-        tensorImage.load(image);
-        tensorImage = imageProcessor.process(tensorImage);
-        List<Detection> results = objectDetector.detect(tensorImage);
+    public Detection detect(@NotNull Frame frame, @NotNull Coordinate coor) {
+        if (frame.getTimestamp() != 0 && frame.getTimestamp() > currentTimestamp) {
+            try (Image image = frame.acquireCameraImage()) {
+                currentTimestamp = frame.getTimestamp();
+                //Convert Image to Bitmap
+                ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                byte[] bytes = new byte[buffer.capacity()];
+                buffer.get(bytes);
+                Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+                //Load bitmap to Tensor Image
+                tensorImage.load(bitmapImage);
+                tensorImage = imageProcessor.process(tensorImage);
+                //Detect
+                List<Detection> results = objectDetector.detect(tensorImage);
 
-        //Get the best detection that contain the closet point
-        Detection bestResult = null;
-        for (Detection result : results) {
-            //If the closet point also in the detection
-            if (result.getBoundingBox().contains(
-                    (float) coor.getX() / (float) coor.getWidth() * inputImageSize,
-                    (float) coor.getY() / (float) coor.getHeight() * inputImageSize
-            )
-            ) {
-                //If the new detection has higher score then the old one => more likely it the object
-                if (bestResult == null || result.getCategories().get(0).getScore() > bestResult.getCategories().get(0).getScore()) {
-                    bestResult = result;
+                //Get the best detection that contain the closet point
+                Detection bestResult = null;
+                for (Detection result : results) {
+                    //If the closet point also in the detection
+                    if (result.getBoundingBox().contains(
+                            (float) coor.getX() / (float) coor.getWidth() * INPUT_IMAGE_SIZE,
+                            (float) coor.getY() / (float) coor.getHeight() * INPUT_IMAGE_SIZE
+                    )
+                    ) {
+                        //If the new detection has higher score then the old one => more likely it the object
+                        if (bestResult == null || result.getCategories().get(0).getScore() > bestResult.getCategories().get(0).getScore()) {
+                            bestResult = result;
+                        }
+                    }
                 }
+
+                if (bestResult != null) {
+                    //Re-coordinated the detection to match with the screen
+                    bestResult.getBoundingBox().set(
+                            bestResult.getBoundingBox().left / INPUT_IMAGE_SIZE * image.getWidth(),
+                            bestResult.getBoundingBox().top / INPUT_IMAGE_SIZE * image.getHeight(),
+                            bestResult.getBoundingBox().right / INPUT_IMAGE_SIZE * image.getWidth(),
+                            bestResult.getBoundingBox().bottom / INPUT_IMAGE_SIZE * image.getHeight()
+                    );
+
+                    //Using Text-To-Speech to read out loud that object name if it never read before
+                    String label = bestResult.getCategories().get(0).getLabel();
+                    if (!label.equals(objectName)) {
+                        objectName = label;
+                        textToSpeech.speak(label, TextToSpeech.QUEUE_FLUSH, null, null);
+                    }
+                    Log.i(TAG, "detect: " + bestResult.getCategories().get(0).getLabel());
+                }
+
+                return bestResult;
+            } catch (NotYetAvailableException e) {
+                e.printStackTrace();
             }
         }
-
-        if (bestResult != null) {
-            //Re-coordinated the detection
-            bestResult.getBoundingBox().set(
-                    bestResult.getBoundingBox().left / inputImageSize * image.getWidth(),
-                    bestResult.getBoundingBox().top / inputImageSize * image.getHeight(),
-                    bestResult.getBoundingBox().right / inputImageSize * image.getWidth(),
-                    bestResult.getBoundingBox().bottom / inputImageSize * image.getHeight()
-            );
-
-            //Using Text-To-Speech to read out loud that object name
-            String label = bestResult.getCategories().get(0).getLabel();
-            if(!label.equals(objectName)){
-                objectName = label;
-                textToSpeech.speak(label, TextToSpeech.QUEUE_FLUSH, null, null);
-            }
-
-        }
-        return bestResult;
+        return null;
     }
 
 }
