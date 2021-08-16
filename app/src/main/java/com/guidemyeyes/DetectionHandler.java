@@ -41,6 +41,7 @@ public class DetectionHandler {
             currentTimestamp = 0;
             ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder()
                     .setScoreThreshold(0.6f)
+                    .setNumThreads(2)
                     .build();
             objectDetector = ObjectDetector.createFromFileAndOptions(context, "lite-model_efficientdet_lite0_detection_metadata_1.tflite", options);
 
@@ -58,8 +59,12 @@ public class DetectionHandler {
         }
     }
 
-    public Detection detect(@NotNull Bitmap image, @NotNull Coordinate coor) {
-        Log.i(TAG, "detect: " + objectName);
+    public Detection detect(@NotNull Bitmap image, @NotNull Coordinate coor, long timeStamp) {
+        if (timeStamp <= currentTimestamp){
+            return null;
+        } else {
+            currentTimestamp = timeStamp;
+        }
 //        Pre-processing Image
         int inputImageSize = 300;
         if (imageProcessor == null) {
