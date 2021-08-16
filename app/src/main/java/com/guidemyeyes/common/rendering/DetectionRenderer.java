@@ -5,14 +5,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 
 import org.tensorflow.lite.task.vision.detector.Detection;
-
-import java.util.List;
 
 public class DetectionRenderer extends View {
 
@@ -55,8 +52,6 @@ public class DetectionRenderer extends View {
         } else {
             canvas.drawColor(Color.TRANSPARENT);
         }
-//        Log.i("TAG", "Canvas Width: " + canvas.getWidth());
-//        Log.i("TAG", "Canvas Height: " + canvas.getHeight());
     }
 
     public void setDetections(Detection detection) {
