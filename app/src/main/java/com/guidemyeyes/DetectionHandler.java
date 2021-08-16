@@ -40,8 +40,8 @@ public class DetectionHandler {
         try {
             currentTimestamp = 0;
             ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder()
-                    .setScoreThreshold(0.55f)
-                    .setNumThreads(2)
+                    .setScoreThreshold(0.6f)
+                    .setNumThreads(4)
                     .build();
             objectDetector = ObjectDetector.createFromFileAndOptions(context, "lite-model_ssd_mobilenet_v1_1_metadata_2.tflite", options);
 
