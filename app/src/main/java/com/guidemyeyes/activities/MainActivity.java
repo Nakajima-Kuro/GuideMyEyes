@@ -2,6 +2,7 @@ package com.guidemyeyes.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -12,7 +13,11 @@ import com.guidemyeyes.R;
 import com.guidemyeyes.fragments.HomeFragment;
 import com.guidemyeyes.fragments.SettingsFragment;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
+
+    private TextToSpeech textToSpeech;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,12 @@ public class MainActivity extends AppCompatActivity {
 
         FloatingActionButton button = (FloatingActionButton) findViewById(R.id.guideButton);
         button.setOnClickListener(v -> {
+            textToSpeech = new TextToSpeech(this, status -> {
+                if (status != TextToSpeech.ERROR) {
+                    textToSpeech.setLanguage(Locale.UK);
+                    textToSpeech.speak(getResources().getString(R.string.starting_inform), TextToSpeech.QUEUE_FLUSH, null, null);
+                }
+            });
             Intent intent = new Intent(MainActivity.this, GuideActivity.class);
             MainActivity.this.startActivity(intent);
         });
