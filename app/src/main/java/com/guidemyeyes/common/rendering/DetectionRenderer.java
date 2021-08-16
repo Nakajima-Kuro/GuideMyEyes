@@ -52,6 +52,8 @@ public class DetectionRenderer extends View {
                 //Draw the label on top left of object
                 canvas.drawText(detection.getCategories().get(0).getLabel(), detection.getBoundingBox().left, detection.getBoundingBox().top, drawPaint);
             }
+        } else {
+            canvas.drawColor(Color.TRANSPARENT);
         }
 //        Log.i("TAG", "Canvas Width: " + canvas.getWidth());
 //        Log.i("TAG", "Canvas Height: " + canvas.getHeight());

@@ -239,6 +239,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] results) {
+        super.onRequestPermissionsResult(requestCode, permissions, results);
         if (!CameraPermissionHelper.hasCameraPermission(this)) {
             Toast.makeText(this, "Camera permission is needed to run this application",
                     Toast.LENGTH_LONG).show();
