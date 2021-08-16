@@ -40,7 +40,7 @@ public class DetectionHandler {
         try {
             currentTimestamp = 0;
             ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder()
-                    .setScoreThreshold(0.6f)
+                    .setScoreThreshold(0.55f)
                     .setNumThreads(2)
                     .build();
             objectDetector = ObjectDetector.createFromFileAndOptions(context, "lite-model_efficientdet_lite0_detection_metadata_1.tflite", options);
@@ -66,7 +66,7 @@ public class DetectionHandler {
             currentTimestamp = timeStamp;
         }
 //        Pre-processing Image
-        int inputImageSize = 300;
+        int inputImageSize = 320;
         if (imageProcessor == null) {
             int width = image.getWidth();
             int height = image.getHeight();
