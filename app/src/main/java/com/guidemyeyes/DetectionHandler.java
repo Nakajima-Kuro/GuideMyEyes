@@ -40,10 +40,10 @@ public class DetectionHandler {
         try {
             currentTimestamp = 0;
             ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder()
-                    .setScoreThreshold(0.55f)
-                    .setNumThreads(2)
+                    .setScoreThreshold(0.6f)
+                    .setNumThreads(4)
                     .build();
-            objectDetector = ObjectDetector.createFromFileAndOptions(context, "lite-model_efficientdet_lite0_detection_metadata_1.tflite", options);
+            objectDetector = ObjectDetector.createFromFileAndOptions(context, "lite-model_ssd_mobilenet_v1_1_metadata_2.tflite", options);
 
             //Create new TextToSpeech
             textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
@@ -66,7 +66,7 @@ public class DetectionHandler {
             currentTimestamp = timeStamp;
         }
 //        Pre-processing Image
-        int inputImageSize = 320;
+        int inputImageSize = 300;
         if (imageProcessor == null) {
             int width = image.getWidth();
             int height = image.getHeight();
