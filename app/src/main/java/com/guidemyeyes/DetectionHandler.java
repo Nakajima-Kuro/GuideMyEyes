@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.google.ar.core.Frame;
 import com.google.ar.core.exceptions.NotYetAvailableException;
+import com.guidemyeyes.common.rendering.ImageUlti;
 
 import org.jetbrains.annotations.NotNull;
 import org.tensorflow.lite.support.image.ImageProcessor;
@@ -38,9 +39,12 @@ public class DetectionHandler {
 
     private long currentTimestamp;
 
+    ImageUlti imageUlti;
+
     public DetectionHandler(Context context) {
         //Set up TF Lite Object Detection
         try {
+            imageUlti = new ImageUlti(context);
             currentTimestamp = 0;
             imageProcessor =
                     new ImageProcessor.Builder()
@@ -76,6 +80,7 @@ public class DetectionHandler {
                 byte[] bytes = new byte[buffer.capacity()];
                 buffer.get(bytes);
                 Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+                imageUlti.saveToInternalStorage(bitmapImage);
                 //Load bitmap to Tensor Image
                 tensorImage.load(bitmapImage);
                 tensorImage = imageProcessor.process(tensorImage);
