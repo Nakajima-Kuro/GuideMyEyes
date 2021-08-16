@@ -145,6 +145,8 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
         if (devMode) {
             //Hide Logo
             findViewById(R.id.guide_logo).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.toggle_depth_button).setVisibility(View.GONE);
         }
 
         enableDetection = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("enable_detection", false);

@@ -2,7 +2,7 @@
     <string name="app_name">Guide My Eyes</string>
     <string name="app_logo">Guide My Eyes Logo</string>
     <string name="start">Start</string>
-    <string name="end">End</string>
+    <string name="end">Stop</string>
     <string name="dev_mode_title">Developer Mode</string>
     <string name="dev_mode_hint">Visualize the sensors on the phone screen. We turn this off by default to save your battery</string>
     <!-- TODO: Remove or change this placeholder text -->
