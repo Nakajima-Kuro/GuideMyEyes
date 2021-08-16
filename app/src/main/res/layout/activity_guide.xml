@@ -26,8 +26,7 @@
         <com.guidemyeyes.common.rendering.DetectionRenderer
             android:id="@+id/detectionRendererLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+            android:layout_height="match_parent" />
 
         <ImageButton
             android:id="@+id/toggle_depth_button"
@@ -59,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:contentDescription="@string/app_logo"
+        tools:ignore="ContentDescription"
         app:srcCompat="@mipmap/ic_launcher_foreground" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -69,11 +69,10 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
     private RadarHandler radarHandler;
     private RadarRenderer radarRenderer;
 
-    private boolean showDepthMap = true;
-
     private DetectionHandler detectionHandler;
     private DetectionRenderer detectionRenderer;
 
+    private boolean showDepthMap = true;
     private boolean devMode = false;
     private boolean enableDetection = false;
 
