@@ -12,5 +12,7 @@
     <string name="bottom_menu_depth">Depth View</string>
     <string name="bottom_menu_normal">Normal View</string>
     <string name="toogle_depth_image">Toogle depth image</string>
+    <string name="enable_detection_title">Enable Detection</string>
+    <string name="enable_detection_hint">This will tell you the name of the object you are going to hit (Warning: this will increase battery usage)</string>
 
 </resources>

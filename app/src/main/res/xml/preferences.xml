@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreference
+        android:key="enable_detection"
+        android:title="@string/enable_detection_title"
+        android:summary="@string/enable_detection_hint"
+        android:defaultValue="false"/>
+    <SwitchPreference
         android:key="dev_mode"
         android:title="@string/dev_mode_title"
         android:summary="@string/dev_mode_hint"

@@ -79,6 +79,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
     private DetectionRenderer detectionRenderer;
 
     private boolean devMode = false;
+    private boolean enableDetection = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,8 +115,8 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
         final ImageButton toggleDepthButton = findViewById(R.id.toggle_depth_button);
 
-        //Check for dev mode
-        checkDevMode();
+        //Check for preferences
+        checkPreferences();
 
         toggleDepthButton.setOnClickListener(
                 view -> {
@@ -140,13 +141,15 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
         });
     }
 
-    private void checkDevMode() {
+    private void checkPreferences() {
         devMode = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("dev_mode", false);
 //        Get View for both Development View and Normal View
         if (devMode) {
             //Hide Logo
             findViewById(R.id.guide_logo).setVisibility(View.GONE);
         }
+
+        enableDetection = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("enable_detection", false);
     }
 
     @Override
@@ -309,7 +312,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 Frame cameraFrame = backgroundRenderer.draw(frame);
 
                 // Render the depth map
-                if (showDepthMap) {
+                if (showDepthMap && !enableDetection) {
                     backgroundRenderer.drawDepth(frame);
                 }
 
@@ -321,12 +324,14 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                 Coordinate coor = radarHandler.renderPosition(frame, orientation);
 
                 if (coor != null) {
-                    Bitmap testImage = createBitmapFromGLSurface(0, 0, surfaceView.getWidth(), surfaceView.getHeight());
+                    if(enableDetection){
+                        Bitmap testImage = createBitmapFromGLSurface(0, 0, surfaceView.getWidth(), surfaceView.getHeight());
 
-                    // Load new camera preview frame into detection
-                    Detection bestResult = detectionHandler.detect(testImage, coor, frame.getTimestamp());
-                    detectionRenderer.setDetections(bestResult);
-                    detectionRenderer.invalidate();
+                        // Load new camera preview frame into detection
+                        Detection bestResult = detectionHandler.detect(testImage, coor, frame.getTimestamp());
+                        detectionRenderer.setDetections(bestResult);
+                        detectionRenderer.invalidate();
+                    }
 
                     //Render the coordinate for closest point on screen [Dev mode]
                     if (devMode) {
