@@ -4,7 +4,6 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.Image;
 import android.media.SoundPool;
-import android.util.Log;
 
 import com.google.ar.core.Frame;
 import com.google.ar.core.exceptions.NotYetAvailableException;
@@ -14,18 +13,7 @@ import java.nio.ByteOrder;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static android.content.ContentValues.TAG;
-
 public class RadarHandler {
-    //Orientation
-    private final int ROTATION_0 = 0;  //^
-    private final int ROTATION_90 = 1; //<-
-    private final int ROTATION_180 = 2;//v
-    private final int ROTATION_270 = 3;//->
-
-    //Set a weight value so that further depth point from the centre of the image will be less important
-    private final short weight = 300;
-    private final short maxDepth = 8000;
 
     Context context;
 
@@ -64,7 +52,7 @@ public class RadarHandler {
      * @param frame The frame get from an AR Instance
      * @return Coordinate of the closest point on depth map
      */
-    public Coordinate renderPosition(Frame frame, int orientation) {
+    public Coordinate renderPosition(Frame frame) {
         try {
             //get Image and its size from frame
             Image depthImage = frame.acquireDepthImage();
@@ -105,19 +93,9 @@ public class RadarHandler {
                 }
             }
             depthImage.close();
-            playSound(coor, orientation);
+            playSound(coor);
             return coor;
         } catch (NotYetAvailableException e) {
-            //AR is not yet available. Playing loading sound
-//                Timer timer = new Timer();
-//                timer.schedule(new TimerTask() {
-//                    @Override
-//                    public void run() {
-//                        soundPool.play(far, 1, 1, 0, 0, 0.5f);
-//                        isPlaying = false;
-//                    }
-//                }, 1000);
-//                e.printStackTrace();
             return null;
         }
     }
@@ -130,6 +108,8 @@ public class RadarHandler {
     private float getSensorValue(Coordinate coor) {
         float halfWidth = (float) coor.getWidth() / 2;
         float halfHeight = (float) coor.getHeight() / 2;
+        //Set a weight value so that further depth point from the centre of the image will be less important
+        short weight = 300;
         return (float) coor.getDepth()
                 + weight * (Math.abs(coor.getX() - halfWidth) / halfWidth)
                 + weight * 1.5f * (Math.abs(coor.getY() - halfHeight) / halfHeight);
@@ -140,7 +120,7 @@ public class RadarHandler {
      *
      * @param coor coordinate of the point want to render sound
      */
-    public void playSound(Coordinate coor, int orientation) {
+    public void playSound(Coordinate coor) {
         if (coor.getDepth() > 0 && !isPlaying) {
             //Start processing sound to play
             soundPool.autoPause();
@@ -152,13 +132,14 @@ public class RadarHandler {
             float leftVolume = baseVolume, rightVolume = baseVolume;
 
             //Pitch to immerse the distance
-            float pitch = 2.0f;
+            float pitch = 1.0f;
 
             float halfHeight = (float) coor.getHeight() / 2;
             float offset = (1 - baseVolume) * (coor.getY() - halfHeight) / halfHeight;
             leftVolume += offset;
             rightVolume -= offset;
             //Change pitch to immerse the distance
+            short maxDepth = 8000;
             pitch -= 1.5f * Math.min(((float) coor.getDepth() / maxDepth), 1);
             //Playing radar sound
             float finalLeftVolume = Math.min(Math.max(leftVolume * (1 - Math.max((float) coor.getDepth() / maxDepth, 0)), 0), 1);

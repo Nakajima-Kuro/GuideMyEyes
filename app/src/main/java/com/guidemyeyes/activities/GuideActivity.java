@@ -1,15 +1,13 @@
 package com.guidemyeyes.activities;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.opengl.GLES20;
-import android.opengl.GLException;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -17,6 +15,7 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -45,11 +44,9 @@ import com.guidemyeyes.common.rendering.BackgroundRenderer;
 import com.guidemyeyes.common.rendering.DetectionRenderer;
 import com.guidemyeyes.common.rendering.RadarRenderer;
 
-import org.jetbrains.annotations.NotNull;
 import org.tensorflow.lite.task.vision.detector.Detection;
 
 import java.io.IOException;
-import java.nio.IntBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -107,7 +104,9 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
         radarRenderer = findViewById(R.id.radarRendererLayout);
 
         //Set up DetectionHandler
-        detectionHandler = new DetectionHandler(this);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        detectionHandler = new DetectionHandler(this, displayMetrics);
         detectionRenderer = findViewById(R.id.detectionRendererLayout);
 
         installRequested = false;
@@ -240,7 +239,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] results) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] results) {
         super.onRequestPermissionsResult(requestCode, permissions, results);
         if (!CameraPermissionHelper.hasCameraPermission(this)) {
             Toast.makeText(this, "Camera permission is needed to run this application",
@@ -299,43 +298,37 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
 
             // Obtain the current frame from ARSession. When the configuration is set to
             // UpdateMode.BLOCKING (it is by default), this will throttle the rendering to the
-            // camera framerate.
+            // camera frame rate.
             Frame frame = session.update();
             // Retrieves the latest depth image for this frame.
             if (isDepthSupported) {
-                depthTexture.update(frame);
-            }
+                if(devMode){
+                    depthTexture.update(frame);
 
-            if (devMode) {
-                // If frame is ready, render camera preview image to the GL surface.
-                Frame cameraFrame = backgroundRenderer.draw(frame);
+                    // If frame is ready, render camera preview image to the GL surface.
+                    backgroundRenderer.draw(frame);
 
-                // Render the depth map
-                if (showDepthMap && !enableDetection) {
-                    backgroundRenderer.drawDepth(frame);
+                    // Render the depth map
+                    if (showDepthMap) {
+                        backgroundRenderer.drawDepth(frame);
+                    }
                 }
 
-            }
-
-            //Render sound base on relative position of the closest point with the frame
-            if (isDepthSupported) {
-                int orientation = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
-                Coordinate coor = radarHandler.renderPosition(frame, orientation);
-
+                Coordinate coor = radarHandler.renderPosition(frame);
                 if (coor != null) {
-                    if(enableDetection){
-                        Bitmap testImage = createBitmapFromGLSurface(0, 0, surfaceView.getWidth(), surfaceView.getHeight());
-
-                        // Load new camera preview frame into detection
-                        Detection bestResult = detectionHandler.detect(frame, coor);
-                        detectionRenderer.setDetections(bestResult);
-                        detectionRenderer.invalidate();
-                    }
-
-                    //Render the coordinate for closest point on screen [Dev mode]
-                    if (devMode) {
-                        radarRenderer.setCoordinate(coor, orientation);
+                    if(devMode){
+                        //Render the coordinate for closest point on screen [Dev mode]
+                        radarRenderer.setCoordinate(coor);
                         radarRenderer.invalidate();
+                    }
+                    if(enableDetection){
+                        // Load new ARCore frame into detection
+                        Detection bestResult = detectionHandler.detect(frame, coor);
+                        if(devMode){
+                            //Render detection result
+                            detectionRenderer.setDetections(bestResult);
+                            detectionRenderer.invalidate();
+                        }
                     }
                 }
             }
@@ -343,35 +336,6 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
             // Avoid crashing the application due to unhandled exceptions.
             Log.e(TAG, "Exception on the OpenGL thread", t);
         }
-    }
-
-    private Bitmap createBitmapFromGLSurface(int x, int y, int w, int h)
-            throws OutOfMemoryError {
-        int bitmapBuffer[] = new int[w * h];
-        int bitmapSource[] = new int[w * h];
-        IntBuffer intBuffer = IntBuffer.wrap(bitmapBuffer);
-        intBuffer.position(0);
-        try {
-
-
-            GLES20.glReadPixels(x, y, w, h, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, intBuffer);
-            int offset1, offset2;
-            for (int i = 0; i < h; i++) {
-                offset1 = i * w;
-                offset2 = (h - i - 1) * w;
-                for (int j = 0; j < w; j++) {
-                    int texturePixel = bitmapBuffer[offset1 + j];
-                    int blue = (texturePixel >> 16) & 0xff;
-                    int red = (texturePixel << 16) & 0x00ff0000;
-                    int pixel = (texturePixel & 0xff00ff00) | red | blue;
-                    bitmapSource[offset2 + j] = pixel;
-                }
-            }
-        } catch (GLException e) {
-            e.printStackTrace();
-            return null;
-        }
-        return Bitmap.createBitmap(bitmapSource, w, h, Bitmap.Config.ARGB_8888);
     }
 
 }

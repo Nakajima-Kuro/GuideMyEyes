@@ -1,11 +1,10 @@
 package com.guidemyeyes.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -64,11 +63,9 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         FloatingActionButton button = (FloatingActionButton) findViewById(R.id.guideButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, GuideActivity.class);
-                MainActivity.this.startActivity(intent);
-            }
+        button.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, GuideActivity.class);
+            MainActivity.this.startActivity(intent);
         });
 
     }

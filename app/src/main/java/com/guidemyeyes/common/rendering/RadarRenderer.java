@@ -12,25 +12,16 @@ import androidx.annotation.Nullable;
 import com.guidemyeyes.Coordinate;
 
 public class RadarRenderer extends View {
-    //Orientation
-    private final int ROTATION_0 = 0;  //^
-    private final int ROTATION_90 = 1; //<-
-    private final int ROTATION_180 = 2;//v
-    private final int ROTATION_270 = 3;//->
-
     // defines paint and canvas
     private Paint drawPaint;
     //Coordinate of the closest point
     private Coordinate coor;
-    //Orientation of the device
-    private int orientation;
 
     public RadarRenderer(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         setupPaint();
         this.setBackgroundColor(Color.TRANSPARENT);
         this.coor = new Coordinate((getWidth() / 2), (getHeight() / 2), getWidth(), getHeight(), (short) 0);
-        this.orientation = 1; //Default portrait, head upward
     }
 
     // Setup paint with color and stroke styles
@@ -76,37 +67,8 @@ public class RadarRenderer extends View {
             *
             * So the equation will be hard to understand
             * */
-            float drawX, drawY;
-            //Check if phone in landscape or potrait
-            switch (orientation) {
-                case ROTATION_0: {
-                    //In Portrait, head face upward
-                    drawX = getWidth() - (float) coor.getY() * getWidth() / coor.getHeight();
-                    drawY = (float) coor.getX() * getHeight() / coor.getWidth();
-                    break;
-                }
-                case ROTATION_90: {
-                    //In Landscape, head face to left
-                    drawX = (float) coor.getX() * getWidth() / coor.getWidth();
-                    drawY = (float) coor.getY() * getHeight() / coor.getHeight();
-                    break;
-                }
-                case ROTATION_180: {
-                    //In Portrait, head face downward (Not surport)
-                    drawX = (float) getWidth() / 2;
-                    drawY = (float) getHeight() / 2;
-                    break;
-                }
-                case ROTATION_270: {
-                    //In Landscape, head face to right
-                    drawX = getWidth() - (float) coor.getX() * getWidth() / coor.getWidth();
-                    drawY = getHeight() - (float) coor.getY() * getHeight() / coor.getHeight();
-                    break;
-                }
-                default: {
-                    return;
-                }
-            }
+            float drawX = getWidth() - (float) coor.getY() * getWidth() / coor.getHeight();
+            float drawY = (float) coor.getX() * getHeight() / coor.getWidth();
 
             canvas.drawCircle(drawX, drawY, 10, drawPaint);
             drawPaint.setColor(Color.RED);
@@ -119,11 +81,9 @@ public class RadarRenderer extends View {
             canvas.drawText("Y: " + drawY, drawX + 40, drawY + 80, drawPaint);
         }
     }
-
-    public void setCoordinate(Coordinate coor, int orientation) {
+    public void setCoordinate(Coordinate coor) {
         if (coor != null) {
             this.coor = coor;
-            this.orientation = orientation;
         }
     }
 }

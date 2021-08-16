@@ -4,15 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.speech.tts.TextToSpeech;
-import android.util.Log;
-
-import androidx.renderscript.RenderScript;
+import android.util.DisplayMetrics;
 
 import com.google.ar.core.Frame;
 import com.google.ar.core.ImageFormat;
 import com.google.ar.core.exceptions.NotYetAvailableException;
 import com.guidemyeyes.common.helpers.ColorConvertHelper;
-import com.guidemyeyes.common.rendering.ImageUlti;
 
 import org.jetbrains.annotations.NotNull;
 import org.tensorflow.lite.support.image.ImageProcessor;
@@ -31,11 +28,14 @@ public class DetectionHandler {
     private String TAG = "DetectionHandler";
     private final int INPUT_IMAGE_SIZE = 300;
 
+    //Object Detection
     private ObjectDetector objectDetector;
     private TensorImage tensorImage = new TensorImage();
     private ImageProcessor imageProcessor = null;
 
+    //Convert ARCore Image to Bitmap
     private ColorConvertHelper colorConvertHelper;
+    private DisplayMetrics displayMetrics;
 
     //Text To Speech
     String objectName = null;
@@ -43,19 +43,16 @@ public class DetectionHandler {
 
     private long currentTimestamp;
 
-    ImageUlti imageUlti;
-
-    public DetectionHandler(Context context) {
+    public DetectionHandler(Context context, DisplayMetrics displayMetrics) {
         //Set up TF Lite Object Detection
         try {
-            imageUlti = new ImageUlti(context);
             currentTimestamp = 0;
             imageProcessor =
                     new ImageProcessor.Builder()
                             // Resize using Bilinear or Nearest neighbour
                             .add(new ResizeOp(INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE, ResizeOp.ResizeMethod.BILINEAR))
                             //Rotate 90 degrees
-                            .add(new Rot90Op(1))
+                            .add(new Rot90Op(3))
                             .build();
             ObjectDetector.ObjectDetectorOptions options = ObjectDetector.ObjectDetectorOptions.builder()
                     .setScoreThreshold(0.6f)
@@ -63,6 +60,7 @@ public class DetectionHandler {
                     .build();
             objectDetector = ObjectDetector.createFromFileAndOptions(context, "lite-model_ssd_mobilenet_v1_1_metadata_2.tflite", options);
             colorConvertHelper = new ColorConvertHelper(context);
+            this.displayMetrics = displayMetrics;
             //Create new TextToSpeech
             textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
                 @Override
@@ -89,7 +87,6 @@ public class DetectionHandler {
                 //Convert Android.media.Image to bitmap (On later version of TFLite, this will be redundant)
                 Bitmap bitmapImage = colorConvertHelper.YUV_420_888_toRGBIntrinsics(image);
 
-//                imageUlti.saveToInternalStorage(bitmapImage);
                 //Load bitmap to Tensor Image
                 tensorImage.load(bitmapImage);
                 tensorImage = imageProcessor.process(tensorImage);
@@ -113,12 +110,12 @@ public class DetectionHandler {
                 }
 
                 if (bestResult != null) {
-                    //Re-coordinated the detection to match with the screen
+                    //Re-coordinated the detection to match with the screen size
                     bestResult.getBoundingBox().set(
-                            bestResult.getBoundingBox().left / INPUT_IMAGE_SIZE * image.getWidth(),
-                            bestResult.getBoundingBox().top / INPUT_IMAGE_SIZE * image.getHeight(),
-                            bestResult.getBoundingBox().right / INPUT_IMAGE_SIZE * image.getWidth(),
-                            bestResult.getBoundingBox().bottom / INPUT_IMAGE_SIZE * image.getHeight()
+                            bestResult.getBoundingBox().left / INPUT_IMAGE_SIZE * displayMetrics.widthPixels,
+                            bestResult.getBoundingBox().top / INPUT_IMAGE_SIZE * displayMetrics.heightPixels,
+                            bestResult.getBoundingBox().right / INPUT_IMAGE_SIZE * displayMetrics.widthPixels,
+                            bestResult.getBoundingBox().bottom / INPUT_IMAGE_SIZE * displayMetrics.heightPixels
                     );
 
                     //Using Text-To-Speech to read out loud that object name if it never read before
@@ -127,9 +124,7 @@ public class DetectionHandler {
                         objectName = label;
                         textToSpeech.speak(label, TextToSpeech.QUEUE_FLUSH, null, null);
                     }
-                    Log.i(TAG, "detect: " + bestResult.getCategories().get(0).getLabel());
                 }
-
                 return bestResult;
             } catch (NotYetAvailableException e) {
                 e.printStackTrace();
