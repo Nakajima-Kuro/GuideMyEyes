@@ -132,6 +132,7 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
             surfaceView.onPause();
             session.close();
             radarHandler.destroy();
+            detectionHandler.destroy();
             //Redirect back to Main Activity
             Intent intent = new Intent(GuideActivity.this, MainActivity.class);
             GuideActivity.this.startActivity(intent);

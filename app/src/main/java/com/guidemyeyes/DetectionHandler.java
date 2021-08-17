@@ -133,4 +133,9 @@ public class DetectionHandler {
         return null;
     }
 
+    public void destroy(){
+        this.textToSpeech.shutdown();
+        this.objectDetector.close();
+    }
+
 }
