@@ -1,4 +1,4 @@
-package com.guidemyeyes;
+package com.guidemyeyes.common.handlers;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import com.google.ar.core.Frame;
 import com.google.ar.core.ImageFormat;
 import com.google.ar.core.exceptions.NotYetAvailableException;
+import com.guidemyeyes.Coordinate;
 import com.guidemyeyes.common.helpers.ColorConvertHelper;
 
 import org.jetbrains.annotations.NotNull;

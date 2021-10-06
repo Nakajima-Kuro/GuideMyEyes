@@ -1,4 +1,4 @@
-package com.guidemyeyes;
+package com.guidemyeyes.common.handlers;
 
 import static android.opengl.GLES20.GL_CLAMP_TO_EDGE;
 import static android.opengl.GLES20.GL_TEXTURE_2D;

@@ -1,4 +1,4 @@
-package com.guidemyeyes;
+package com.guidemyeyes.common.handlers;
 
 import android.content.Context;
 import android.media.AudioAttributes;
@@ -7,6 +7,8 @@ import android.media.SoundPool;
 
 import com.google.ar.core.Frame;
 import com.google.ar.core.exceptions.NotYetAvailableException;
+import com.guidemyeyes.Coordinate;
+import com.guidemyeyes.R;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
