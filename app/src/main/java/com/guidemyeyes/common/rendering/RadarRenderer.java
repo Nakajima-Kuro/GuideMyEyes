@@ -84,6 +84,7 @@ public class RadarRenderer extends View {
     public void setCoordinate(Coordinate coor) {
         if (coor != null) {
             this.coor = coor;
+            invalidate();
         }
     }
 }

@@ -321,7 +321,6 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                     if(devMode){
                         //Render the coordinate for closest point on screen [Dev mode]
                         radarRenderer.setCoordinate(coor);
-                        radarRenderer.invalidate();
                     }
                     if(enableDetection){
                         // Load new ARCore frame into detection
@@ -329,7 +328,6 @@ public class GuideActivity extends AppCompatActivity implements GLSurfaceView.Re
                         if(devMode){
                             //Render detection result
                             detectionRenderer.setDetections(bestResult);
-                            detectionRenderer.invalidate();
                         }
                     }
                 }
