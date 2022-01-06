@@ -25,8 +25,6 @@ Cách thức hoạt động của ứng dụng:
 * Với điểm kết quả lấy được, phát tín hiệu âm thanh để cảnh báo người dùng về vị trí vật cản
 * Sử dụng TensorFlow Lite để nhận diện đối tượng có khả năng va chạm nhất và cảnh báo đến người dùng
 
-<p align="right">(<a href="#top">Quay lại đầu trang</a>)</p>
-
 ### ĐƯợc xây dựng bởi
 
 Ứng dụng được xây dựng dựa trên những nền tảng sau:
@@ -35,5 +33,3 @@ Cách thức hoạt động của ứng dụng:
 * [ARCore](https://developers.google.com/ar)
 * [TensorFLow Lite](https://www.tensorflow.org/lite)
 * [MobileNet-SSD](https://arxiv.org/pdf/1512.02325.pdf)
-
-<p align="right">(<a href="#top">Quay lại đầu trang</a>)</p>
