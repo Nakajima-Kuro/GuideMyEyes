@@ -25,7 +25,7 @@ Cách thức hoạt động của ứng dụng:
 * Với điểm kết quả lấy được, phát tín hiệu âm thanh để cảnh báo người dùng về vị trí vật cản
 * Sử dụng TensorFlow Lite để nhận diện đối tượng có khả năng va chạm nhất và cảnh báo đến người dùng
 
-### ĐƯợc xây dựng bởi
+## Được xây dựng bởi
 
 Ứng dụng được xây dựng dựa trên những nền tảng sau:
 
