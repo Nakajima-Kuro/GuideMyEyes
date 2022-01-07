@@ -55,9 +55,7 @@ public class DetectionRenderer extends View {
     }
 
     public void setDetections(Detection detection) {
-        if(detection != null){
-            this.detection = detection;
-            invalidate();
-        }
+        this.detection = detection;
+        invalidate();
     }
 }
