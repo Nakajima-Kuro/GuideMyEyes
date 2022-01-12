@@ -99,8 +99,8 @@ public class DetectionHandler {
                 for (Detection result : results) {
                     //If the closet point also in the detection
                     if (result.getBoundingBox().contains(
-                            (float) coor.getX() / (float) coor.getWidth() * INPUT_IMAGE_SIZE,
-                            (float) coor.getY() / (float) coor.getHeight() * INPUT_IMAGE_SIZE
+                            (float) coor.getY() / (float) coor.getHeight() * INPUT_IMAGE_SIZE,
+                            (float) coor.getX() / (float) coor.getWidth() * INPUT_IMAGE_SIZE
                     )
                     ) {
                         //If the new detection has higher score then the old one => more likely it the object
@@ -134,7 +134,7 @@ public class DetectionHandler {
         return null;
     }
 
-    public void destroy(){
+    public void destroy() {
         this.textToSpeech.shutdown();
         this.objectDetector.close();
     }
